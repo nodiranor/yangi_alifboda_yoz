@@ -1,0 +1,68 @@
+#pragma code_page(65001)
+#include <windows.h>
+#include <commctrl.h>
+#include "resource.h"
+
+1 RT_MANIFEST "yay.manifest"
+
+IDI_APPICON    ICON "app.ico"
+IDI_PAUSEDICON ICON "app_paused.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     2,0,0,0
+PRODUCTVERSION  2,0,0,0
+FILEFLAGSMASK   0x3fL
+FILEFLAGS       0x0L
+FILEOS          0x40004L
+FILETYPE        0x1L
+FILESUBTYPE     0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments",         "YAY - Yangi Alifboda Yoz\0"
+            VALUE "CompanyName",      "YAY Project\0"
+            VALUE "FileDescription",  "YAY - Yangi Alifboda Yoz\0"
+            VALUE "FileVersion",      "2.0.0.0\0"
+            VALUE "InternalName",     "YAY\0"
+            VALUE "LegalCopyright",   "MIT License\0"
+            VALUE "OriginalFilename", "YAY.exe\0"
+            VALUE "ProductName",      "YAY - Yangi Alifboda Yoz\0"
+            VALUE "ProductVersion",   "2.0.0.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+IDD_MAIN DIALOGEX 0, 0, 320, 240
+STYLE DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
+EXSTYLE WS_EX_APPWINDOW
+CLASS "YAYDashboardClass"
+CAPTION "YAY - Yangi Alifboda Yoz"
+FONT 9, "Segoe UI", 400, 0, 0x0
+BEGIN
+    LTEXT           "Holat: aniqlanmoqda...", IDC_STATUS_TEXT, 7, 7, 306, 10
+    LTEXT           "Tilni almashtirish: Win + Space", IDC_LANG_TEXT, 7, 19, 306, 10
+    PUSHBUTTON      "O'zbek (lotin) tilini til paneliga qo'shish", IDC_BTN_ADD_UZBEK, 7, 33, 220, 14
+
+    GROUPBOX        "Qoidalar", IDC_GRP_RULES, 7, 54, 306, 76
+    LTEXT           "ss → ş          oo → ö          gg → ğ          cc → ç", IDC_RULE1, 15, 67, 290, 10
+    LTEXT           "Uch marta bossangiz asl harflar qoladi: sss → ss, ooo → oo", IDC_RULE2, 15, 79, 290, 10
+    LTEXT           "Eski usul ham ishlaydi: sh → ş, ch → ç, o' → ö, g' → ğ", IDC_RULE3, 15, 91, 290, 10
+    LTEXT           "Sinab ko'ring:", IDC_TEST_LABEL, 15, 110, 48, 10
+    EDITTEXT        IDC_EDIT_TEST, 66, 107, 239, 14, ES_AUTOHSCROLL
+
+    GROUPBOX        "Sozlamalar", IDC_GRP_SETTINGS, 7, 137, 306, 70
+    AUTOCHECKBOX    "Faqat O'zbek (UZB) tili tanlanganda ishlash", IDC_CHK_ONLY_UZ, 15, 150, 290, 10
+    AUTOCHECKBOX    "Bitta 'c' harfini darhol 'ç' qilib yozish", IDC_CHK_SINGLE_C, 15, 164, 290, 10
+    AUTOCHECKBOX    "Eski usulda yozganda maslahat ko'rsatish", IDC_CHK_TIPS, 15, 178, 290, 10
+    AUTOCHECKBOX    "Windows bilan birga ishga tushirish", IDC_CHK_STARTUP, 15, 192, 290, 10
+
+    CONTROL         "Homiy: <a href=""https://t.me/juraboshibot"">t.me/juraboshibot</a>", IDC_SPONSOR, "SysLink", WS_TABSTOP, 7, 221, 160, 10
+    PUSHBUTTON      "Trayga &yashirish", IDC_BTN_HIDE, 191, 218, 72, 14
+    PUSHBUTTON      "&Chiqish", IDC_BTN_EXIT, 267, 218, 46, 14
+END
