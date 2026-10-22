@@ -22,3 +22,6 @@
 
 # Brainstorm companion sessions
 .superpowers/
+
+# Build output
+build/
