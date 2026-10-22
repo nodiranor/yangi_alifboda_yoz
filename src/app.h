@@ -123,7 +123,6 @@ enum ActiveProfile {
 // Decides the profile from the foreground window's keyboard layout. When `outLayout` is not NULL
 // it receives that layout, which CyrillicCharForKey needs.
 ActiveProfile GetActiveProfile(HKL *outLayout);
-bool IsUzbekInputMethodActive();   // true unless GetActiveProfile() is AP_NONE
 bool IsUzbekLayoutInstalled();     // is the Uzbek (Latin) layout in the user's layout list?
 bool IsWindows8OrGreaterReal();    // the true OS version; the Windows 7 and 8+ install paths differ
 void TriggerAddUzbekLayout();      // Windows 8 and later: add the layout in the background

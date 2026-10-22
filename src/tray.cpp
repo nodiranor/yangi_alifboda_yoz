@@ -30,11 +30,15 @@ void TrayRemove() {
 // Picks the icon and tooltip for the current state and refreshes the dashboard text too.
 // The tray is only touched when something actually changed, which avoids flicker.
 void UpdateTrayStatus() {
-  bool activeNow = g_bEnabled && IsUzbekInputMethodActive();
+  // The tooltip names what YAY is doing, not which layout is selected: the Latin rules also run
+  // on the English layout, and the Cyrillic conversion also runs on the Russian layout.
+  const ActiveProfile profile = g_bEnabled ? GetActiveProfile(NULL) : AP_NONE;
+  const bool activeNow = (profile != AP_NONE);
   HICON icon = activeNow ? g_hIconActive : g_hIconPaused;
-  const wchar_t *tip = !g_bEnabled ? L"YAY: Öçirilgan (pauza)"
-                     : activeNow   ? L"YAY: Faol (UZB tanlangan)"
-                                   : L"YAY: Kutiş rejimi (boşqa til)";
+  const wchar_t *tip = !g_bEnabled            ? L"YAY: Öçirilgan (pauza)"
+                     : profile == AP_LATIN    ? L"YAY: Faol (lotin)"
+                     : profile == AP_CYRILLIC ? L"YAY: Faol (kirilldan lotinga)"
+                                              : L"YAY: Kutiş rejimi (boşqa til)";
   if (g_nid.hIcon != icon || lstrcmpW(g_nid.szTip, tip) != 0) {
     g_nid.hIcon = icon;
     lstrcpynW(g_nid.szTip, tip, 128);

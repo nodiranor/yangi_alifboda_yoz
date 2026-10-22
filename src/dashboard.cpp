@@ -42,7 +42,7 @@ void UpdateDashboardUI() {
   // Status line: what is YAY doing right now?
   const ActiveProfile profile = g_bEnabled ? GetActiveProfile(NULL) : AP_NONE;
   const wchar_t *status = !g_bEnabled            ? L"Holat: Öçirilgan (pauza). Yoqiş uçun tray belgisini bosing."
-                        : profile == AP_LATIN    ? L"Holat: Faol. UZB (Özbek lotin) tanlangan, yozişingiz mumkin."
+                        : profile == AP_LATIN    ? L"Holat: Faol. Lotin rejimi: yangi harflarni ikki marta bosib yozing."
                         : profile == AP_CYRILLIC ? L"Holat: Faol. Kirillda yozing, yangi lotin alifbosida çiqadi."
                                                  : L"Holat: Kutiş rejimi. Boşqa til tanlangan.";
   SetTextIfChanged(g_hMainWnd, IDC_STATUS_TEXT, status);

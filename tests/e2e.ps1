@@ -61,6 +61,22 @@ function ReadEdit {
   [void][K]::SendMessage($script:edit, $WM_GETTEXT, [IntPtr]256, $sb)
   return $sb.ToString()
 }
+# The status line at the top of the dashboard (IDC_STATUS_TEXT). It uses the same mode lookup as the
+# tray tooltip, so it shows what the tooltip shows.
+function ReadStatus {
+  $sb = New-Object System.Text.StringBuilder 300
+  [void][K]::SendMessage([K]::GetDlgItem($script:dash, 3007), $WM_GETTEXT, [IntPtr]300, $sb)
+  return $sb.ToString()
+}
+# Waits for the window's once-a-second refresh, then checks that the status line contains `part`.
+function CheckStatus([string]$label, [string]$part) {
+  Start-Sleep -Milliseconds 1300
+  $text = ReadStatus
+  $ok = ($text -like "*$part*")
+  if (-not $ok) { $script:fail++ }
+  "{0,-6} status line on {1}: contains [{2}] -> {3}" -f $(if ($ok) { 'ok' } else { 'FAIL' }), $label, $part, $ok
+}
+
 function ClearEdit { [void][K]::SendMessage($script:edit, $WM_SETTEXT, [IntPtr]::Zero, "") }
 
 Get-Process -Name YAY, YAY_test -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -111,6 +127,10 @@ foreach ($case in $cases) {
   $expShow = ($case[1].ToCharArray() | ForEach-Object { if ([int]$_ -lt 128) { [string]$_ } else { '\u{0:X4}' -f [int]$_ } }) -join ''
   "{0,-6} {1,-10} -> {2,-12} expected {3}" -f $(if ($ok) { 'ok' } else { 'FAIL' }), $case[0], $gotShow, $expShow
 }
+
+# The test build also runs the Latin rules on the English layout. The status line must describe
+# the mode, not claim that the Uzbek layout is selected.
+CheckStatus "EN" "Lotin rejimi"
 
 # Coach pill: appears after a legacy digraph, disappears on the next key.
 ClearEdit
@@ -188,6 +208,7 @@ try {
     $langWant = [Convert]::ToInt32($layoutCase[0], 16)
     if ($langNow -ne $langWant) { Write-Host ("FAIL   could not switch the dashboard to layout {0} (now 0x{1:X4})" -f $layoutCase[0], $langNow); $fail++; continue }
     $map = Build-KeyMap $hkl
+    CheckStatus $label "Kirillda yozing"
 
     $words = @(
       @((Cyr 0x0447,0x043E,0x0439),                                   "${C}oy"),                # чой

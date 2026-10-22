@@ -37,11 +37,6 @@ ActiveProfile GetActiveProfile(HKL *outLayout) {
   return AP_NONE;
 }
 
-// For callers that only care whether YAY is acting at all (tray icon, window text).
-bool IsUzbekInputMethodActive() {
-  return GetActiveProfile(NULL) != AP_NONE;
-}
-
 // Is the Uzbek (Latin) layout in the user's list of layouts? It decides whether the window
 // offers the "add layout" button, and whether start-up should add it.
 bool IsUzbekLayoutInstalled() {
