@@ -4,16 +4,17 @@
 
 # YAY — Yangi Alifboda Yoz
 
-**O'zbek tilining isloh qilingan yangi lotin alifbosida tez va oson yozish uchun yengil, zamonaviy Windows yordamchisi.**  
-*An ultra-lightweight, native Windows keyboard assistant designed for the reformed Uzbek Latin alphabet.*
+**O'zbek tilining isloh qilingan yangi lotin alifbosida tez va oson yozish uchun yengil, zamonaviy Windows yordamchisi.**
+*An ultra-lightweight, native Windows keyboard assistant for the reformed Uzbek Latin alphabet.*
 
-[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-blue?logo=windows)](https://github.com/nodiranor/yangi_alifboda_yoz)
-[![C++](https://img.shields.io/badge/Language-C%2B%2B17%20%28Pure%20Win32%29-00599C?logo=c%2B%2B)](yay.cpp)
+[![Sponsor](https://img.shields.io/badge/Homiy%20%2F%20Sponsor-%40juraboshibot-26A5E4?logo=telegram&logoColor=white)](https://t.me/juraboshibot)
+[![Platform](https://img.shields.io/badge/Platform-Windows%207%20%7C%208%20%7C%2010%20%7C%2011-blue?logo=windows)](https://github.com/nodiranor/yangi_alifboda_yoz)
+[![C++](https://img.shields.io/badge/Language-C%2B%2B%20%28Pure%20Win32%29-00599C?logo=c%2B%2B)](src)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Zero Dependency](https://img.shields.io/badge/Dependencies-Zero%20Runtime-orange.svg)](#texnik-xususiyatlari--technical-specs)
-[![Size](https://img.shields.io/badge/Size-~300%20KB-success.svg)](#yuklab-olish--download)
+[![Size](https://img.shields.io/badge/Size-~50%20KB-success.svg)](#-yuklab-olish--installation)
+[![Zero Dependency](https://img.shields.io/badge/Dependencies-None-orange.svg)](#-texnik-xususiyatlar--technical-notes)
 
-[O'zbekcha](#-ozbekcha) • [English](#-english) • [Qoidalar / Rules](#-alifbo-qoidalari--typing-rules) • [O'rnatish / Install](#-ornatish--installation) • [Kompilyatsiya / Build](#-yigish-va-kompilyatsiya--building-from-source)
+[O'zbekcha](#-ozbekcha) • [English](#-english) • [Qoidalar / Rules](#%EF%B8%8F-alifbo-qoidalari--typing-rules) • [O'rnatish / Install](#-ornatish--installation) • [Kompilyatsiya / Build](#-yigish--building-from-source)
 
 </div>
 
@@ -21,124 +22,133 @@
 
 ## 🇺🇿 O'zbekcha
 
-**YAY (Yangi Alifboda Yoz)** — O'zbekiston Respublikasining isloh qilingan yangi lotin alifbosi harflarini (`ş`, `ç`, `ö`, `ğ`) standart ingliz (QWERTY) klaviaturasida tezkor va qulay yozish imkonini beruvchi ixcham, zamonaviy dastur.
+**YAY (Yangi Alifboda Yoz)** — isloh qilingan yangi o'zbek lotin alifbosi harflarini (`ş`, `ç`, `ö`, `ğ`) oddiy QWERTY klaviaturada tez yozish uchun ixcham dastur.
 
-Dastur tizimning boshqa tillariga (`ENG`, `RUS`) umuman xalaqit bermaydi. Siz **Win + Space** orqali O'zbek tiliga (`UZB`) o'tganingizdagina faollashadi.
+Dastur boshqa tillarga (`ENG`, `RUS`) xalaqit bermaydi. U faqat **Win + Space** orqali O'zbek (`UZB`) tili tanlanganda ishlaydi.
 
-### Asosiy Afzalliklari:
-- 🚀 **Tezkor kiritish (Double-Tap)**: `ss` -> `ş`, `oo` -> `ö`, `gg` -> `ğ`, `cc` -> `ç`.
-- ↩️ **Darhol bekor qilish (Enter Undo)**: Agar sizga aynan ikkita bir xil harf kerak bo'lsa (masalan, *hissa*, *massiv*), harf almashgandan so'ng darhol **Enter** tugmasini bosing — asl holatiga (`ss`) qaytadi!
-- 🔄 **Eski usul bilan to'liq moslik**: `sh` -> `ş`, `ch` -> `ç`, `o'` -> `ö`, `g'` -> `ğ` kombinatsiyalari ham avtomatik ishlaydi.
-- 🧘 **Xalaqit bermaydigan zamonaviy UI**: Qalqib chiquvchi yo'riqnoma tugmalar matn terish zonasini to'smaydi va keyingi harf bosilishi bilanoq ko'z ochib yumguncha (0 ms) yo'qoladi.
-- 🔒 **100% Xavfsiz va Maxfiy**: Internetga ulanmaydi, ma'lumotlarni yozib olmaydi (No keylogger, No telemetry).
-- 🪶 **Juda yengil**: Hajmi bor-yo'g'i ~300 KB. Hech qanday og'ir freymvorklarsiz (sof C++17 va Windows Win32 API).
+### Asosiy afzalliklari
+- 🚀 **Ikki marta bosish**: `ss` → `ş`, `oo` → `ö`, `gg` → `ğ`, `cc` → `ç`.
+- 🔁 **Uch marta bosish**: ikkita oddiy harf kerak bo'lsa (*Rossiya*, *issiq*, *massa*) uchinchi marta bosing: `sss` → `ss`. Enter, Tab va Escape tugmalari hech qachon ishlatilmaydi, shuning uchun brauzer, Telegram va har qanday formada xavfsiz.
+- 🔄 **Eski usul ham ishlaydi**: `sh` → `ş`, `ch` → `ç`, `o'` → `ö`, `g'` → `ğ`.
+- 🪟 **Windows 7, 8, 8.1, 10, 11** — bitta fayl, 32 va 64 bitli tizimlarda.
+- 🧘 **Oddiy Windows oynasi**: tizim shriftlari va tugmalari, yuqori aniqlikdagi (DPI) ekranlarda ham tiniq.
+- 🔒 **Maxfiy**: internetga ulanmaydi, hech narsa yozib olmaydi.
+- 🪶 **Juda yengil**: bitta ~50 KB `.exe`, qo'shimcha kutubxonalar yo'q, kutish holatida protsessorni ishlatmaydi.
 
 ---
 
 ## 🇬🇧 English
 
-**YAY (Yangi Alifboda Yoz)** is an ultra-lightweight, high-performance native Windows input assistant specifically built for the reformed Uzbek Latin alphabet (`ş`, `ç`, `ö`, `ğ`).
+**YAY (Yangi Alifboda Yoz)** is a tiny native Windows input assistant for the reformed Uzbek Latin alphabet (`ş`, `ç`, `ö`, `ğ`). It sits in the tray and only acts while the **Uzbek Latin** layout is selected with **Win + Space**. English and Russian typing are untouched.
 
-It runs quietly in the system tray and monitors keystrokes strictly when the **Uzbek Latin (`uz-Latn-UZ`)** input layout is active via **Win + Space**. English (`ENG`) and Russian (`RUS`) input methods remain completely unaffected.
-
-### Key Features:
-- 🚀 **Fast Double-Tap Conversion**: `ss` -> `ş`, `oo` -> `ö`, `gg` -> `ğ`, `cc` -> `ç`.
-- ↩️ **Instant Undo on Enter**: Convert accidentally? Pressing `Enter` immediately reverts the substitution back to literal double letters (`ss`, `oo`, etc.).
-- 🔄 **Legacy Digraph Support**: Full backward compatibility with traditional digraphs (`sh` -> `ş`, `ch` -> `ç`, `o'` -> `ö`, `g'` -> `ğ`).
-- 🧘 **Non-Blocking Pill UI**: Subtle dark-capsule hints float near the caret without obstructing text, automatically vanishing the instant you type another letter.
-- 🔒 **100% Private & Offline**: Zero network calls, zero keystroke logging, no telemetry.
-- 🪶 **Zero-Dependency Native Binary**: Compiled directly with native Win32 C++17 into a standalone ~300 KB executable.
+### Key features
+- 🚀 **Double tap**: `ss` → `ş`, `oo` → `ö`, `gg` → `ğ`, `cc` → `ç`.
+- 🔁 **Triple tap**: need the plain double letter (*Rossiya*, *issiq*)? Tap a third time: `sss` → `ss`. Enter, Tab and Escape are never intercepted, so it is safe in browsers, Telegram and any form.
+- 🔄 **Legacy digraphs**: `sh` → `ş`, `ch` → `ç`, `o'` → `ö`, `g'` → `ğ` keep working.
+- 🪟 **Windows 7 through 11**, one 32-bit exe for every edition.
+- 🧘 **Plain Windows dialog**: standard controls, system font, crisp on high-DPI screens.
+- 🔒 **Private**: no network, no logging.
+- 🪶 **Lightweight**: one ~50 KB `.exe`, no runtime dependencies, zero CPU while idle.
 
 ---
 
-## ⌨️ Alifbo qoidalari / Typing Rules
+## ⌨️ Alifbo qoidalari / Typing rules
 
-| Yangi harf / Target | Tezkor usul (Double-Tap) | An'anaviy usul (Legacy) | Bekor qilish (Undo) | Misol / Example |
+| Harf / Letter | Tez usul / Fast | Oddiy ikkita harf / Plain double | Eski usul / Legacy | Misol / Example |
 | :---: | :---: | :---: | :---: | :--- |
-| **ş** / **Ş** | `ss` / `SS` | `sh` / `SH` | <kbd>Enter</kbd> bosilsa `ss` bo'ladi | *şahar* / *shahar* |
-| **ç** / **Ç** | `cc` / `CC` | `ch` / `CH` | <kbd>Enter</kbd> bosilsa `cc` bo'ladi | *çoy* / *choy* |
-| **ö** / **Ö** | `oo` / `OO` | `o'` / `O'` | <kbd>Enter</kbd> bosilsa `oo` bo'ladi | *ördek* / *o'rdak* |
-| **ğ** / **Ğ** | `gg` / `GG` | `g'` / `G'` | <kbd>Enter</kbd> bosilsa `gg` bo'ladi | *ğalaba* / *g'alaba* |
+| **ş** / **Ş** | `ss` / `SS` | `sss` → `ss` | `sh` / `SH` | *şahar*, *Rossiya* (`Rosssiya`) |
+| **ç** / **Ç** | `cc` / `CC` | `ccc` → `cc` | `ch` / `CH` | *çoy* |
+| **ö** / **Ö** | `oo` / `OO` | `ooo` → `oo` | `o'` / `O'` | *ördak*, *zoologiya* (`zooologiya`) |
+| **ğ** / **Ğ** | `gg` / `GG` | `ggg` → `gg` | `g'` / `G'` | *ğalaba* |
+
+Uch marta bosish tez bosilganda (taxminan 0,35 soniya ichida) ishlaydi. Qo'shimcha bosishlar oddiy harf sifatida qoladi: `ssss` → `sss`.
+
+> [!NOTE]
+> **ş dan keyin s** (*işsiz*, *tuşsa*): `sh` + `s` deb yozing, yoki ikkinchi `s` dan keyin biroz kutib uchinchisini bosing.
+> **ş followed by s** (*işsiz*, *tuşsa*): type `sh` + `s`, or pause briefly before the last `s`.
 
 > [!TIP]
-> **Yagona "c" rejimi (Ixtiyoriy)**: Dashboard orqali *"Bitta 'c' harfida to'g'ridan-to'g'ri 'ç' yozish"* sozlamasini yoqsangiz, har bitta `c` bosilganda darhol `ç` belgisi qo'yiladi.
+> **Bitta "c" rejimi**: oynadagi *"Bitta 'c' harfini darhol 'ç' qilib yozish"* sozlamasi yoqilsa, har bir `c` darhol `ç` bo'ladi.
 
 ---
 
 ## 📥 O'rnatish / Installation
 
-### 1. Avtomatik o'rnatuvchi (Tavsiya etiladi)
-1. Eng so'nggi [`Output/YAY_Setup.exe`](Output/YAY_Setup.exe) faylini yuklab oling.
-2. O'rnatish dasturini ishga tushiring (O'zbek va Rus tillarida mavjud).
-3. O'rnatuvchi avtomatik ravishda Windows til paneliga **O'zbek (Lotin)** tilini qo'shadi va yorliqlarni yaratadi.
+### 1. O'rnatuvchi (tavsiya etiladi)
+1. [`Output/YAY_Setup.exe`](Output/YAY_Setup.exe) faylini yuklab oling va ishga tushiring (O'zbek va Rus tillarida).
+2. O'rnatuvchi Windows 8 va undan yangi tizimlarda **O'zbek (lotin)** tilini til paneliga qo'shadi. Windows 7 da buni dastur oynasidagi tugma bajaradi (keyin tizimdan chiqib, qayta kiring).
 
-### 2. Portativ versiya (Portable)
-1. [`YAY.exe`](YAY.exe) faylini yuklab oling.
-2. Istalgan qulay papkaga joylashtirib, ishga tushiring. Dastur to'g'ridan-to'g'ri tizim patnisida (System Tray) ishlay boshlaydi.
+### 2. Portativ
+[`YAY.exe`](YAY.exe) faylini istalgan papkaga joylashtirib ishga tushiring. `/tray` parametri bilan ishga tushirilsa, oyna ochilmaydi.
 
 ---
 
-## 🖥 Tizim talablari / System Requirements
+## 🖥 Tizim talablari / System requirements
 
-- **Operatsion tizim**: Windows 10, Windows 11 (32-bit va 64-bit).
-- **Protsessor va Xotira**: Har qanday zamonaviy kompyuter (~5 MB RAM talab qiladi).
-- **Qo'shimcha paketlar**: Hech narsa talab qilinmaydi (VC++ Redistributable yoki .NET kerak emas).
+- Windows 7 SP1, 8, 8.1, 10, 11 (32 yoki 64 bit).
+- Qo'shimcha paketlar kerak emas (VC++ Redistributable yoki .NET talab qilinmaydi).
 
 ---
 
-## 🛠 Yig'ish va Kompilyatsiya / Building from Source
+## 🛠 Yig'ish / Building from source
 
-Loyihani manba kodidan yig'ish uchun **MinGW-w64** yoki **MSVC** kerak bo'ladi.
+### MSVC (Visual Studio 2022, Desktop C++)
+```bat
+build.cmd
+```
+Skript quyidagilarni bajaradi: `tests\test_engine.cpp` testlarini ishga tushiradi, resurslarni kompilyatsiya qiladi, `YAY.exe` ni C runtime kutubxonasisiz (x86) yig'adi, Inno Setup 6 topilsa `Output\YAY_Setup.exe` ni yaratadi.
 
-### MinGW-w64 (`g++` va `windres`) yordamida:
-```powershell
-# 1. Resurs faylini (ikonka va versiya ma'lumotlarini) yig'ish
-windres yay.rc -O coff -o yay_res.o
-
-# 2. Asosiy dasturni kompilyatsiya qilish
-g++ -O2 -municode -mwindows -static yay.cpp yay_res.o -o YAY.exe -luser32 -lgdi32 -lshell32 -ladvapi32 -lcomctl32
-
-# 3. Vaqtinchalik resurs faylini tozalash
-Remove-Item yay_res.o
-
-# 4. O'rnatish paketini (YAY_Setup.exe) Inno Setup orqali yig'ish
-ISCC.exe YAY_Setup.iss
+Haqiqiy klaviatura bosishlari bilan to'liq tekshirish (dastur oynasidagi sinov maydoniga yozadi):
+```bat
+tests\e2e.cmd
 ```
 
-### MSVC (`cl.exe` va `rc.exe`) yordamida:
-```cmd
-rc.exe /fo yay.res yay.rc
-cl.exe /O2 /W4 /DUNICODE /D_UNICODE yay.cpp yay.res /link /SUBSYSTEM:WINDOWS user32.lib gdi32.lib shell32.lib advapi32.lib comctl32.lib /OUT:YAY.exe
+### MinGW-w64 (sinab ko'rilmagan / not verified)
+```bash
+mkdir -p build
+(cd res && windres yay.rc -O coff -o ../build/yay_res.o)
+g++ -std=c++17 -Os -s -municode -mwindows -static -D_WIN32_WINNT=0x0601 -D_WIN32_IE=0x0800 src/*.cpp build/yay_res.o -o YAY.exe -luser32 -lgdi32 -lshell32 -ladvapi32 -lcomctl32
+```
+
+### Ikonkalar / Icons
+```bash
+python tools/make_icons.py Icon.png res/app.ico res/app_paused.ico
 ```
 
 ---
 
-## 📂 Loyiha tuzilmasi / Project Structure
+## 📂 Loyiha tuzilmasi / Project structure
 
 ```text
-├── Icon.png            # 1254x1254 yuqori aniqlikdagi rasmiy brend belgisi
-├── app.ico             # Dastur va o'rnatuvchi uchun multi-resolution ikonka (16-256px)
-├── app_paused.ico      # Tizim patnisidagi pauza holati uchun ikonka
-├── yay.cpp             # Asosiy C++17 dastur kodi (Win32 API, to'liq izohlar bilan)
-├── yay.rc              # Windows resurs fayli (ikonkalar va VERSIONINFO)
-├── YAY_Setup.iss       # Inno Setup o'rnatish skripti (O'zbek va Rus tillari)
-├── Uzbek.isl           # Inno Setup uchun o'zbekcha tarjima fayli
-├── YAY.exe             # Yig'ilgan tayyor portativ dastur (~300 KB)
-├── Output/             # O'rnatuvchi chiqish papkasi
-│   └── YAY_Setup.exe   # Tayyor to'liq o'rnatuvchi paket (~2.5 MB)
-├── CONTRIBUTING.md     # Ochiq kodga hissa qo'shish yo'riqnomasi
-├── LICENSE             # MIT Ochiq kod litsenziyasi
-└── README.md           # Asosiy hujjat
+├── src/                 # C++ manba kodi: engine (qoidalar), hook, dashboard, tray, pill, layout, settings, main
+├── res/                 # resource.h, yay.rc (dialog), yay.manifest, ikonkalar
+├── tests/               # engine testlari (test_engine.cpp) va e2e (e2e.cmd, e2e.ps1)
+├── tools/make_icons.py  # Icon.png dan .ico yaratish
+├── build.cmd            # MSVC yig'ish skripti
+├── YAY_Setup.iss        # Inno Setup skripti (O'zbek va Rus)
+├── Uzbek.isl            # Inno Setup o'zbekcha tarjimasi
+├── install_uzbek_layout.ps1
+├── YAY.exe              # Tayyor portativ dastur
+└── Output/YAY_Setup.exe # Tayyor o'rnatuvchi
 ```
+
+---
+
+## 🔧 Texnik xususiyatlar / Technical notes
+
+- Sof Win32 API: C++ standart kutubxonasi, istisnolar va C runtime ishlatilmaydi. Natijada bitta ~50 KB `.exe`.
+- Klaviatura hodisalari `WH_KEYBOARD_LL` orqali kuzatiladi, almashtirish `SendInput` bilan yuboriladi. Til o'zgarishi Windows xabarlari orqali bilinadi, taymer bilan so'ralmaydi.
+- Oyna — oddiy `DIALOGEX` resursi; manifest orqali Common Controls v6 va DPI (PerMonitorV2) qo'llab-quvvatlanadi.
+- Ma'lum cheklov: matn maydonida avtomatik to'ldirish tanlangan bo'lsa (masalan, Chrome manzil satrida URL taklifi), yuborilgan Backspace harf o'rniga taklifni o'chirishi mumkin. Bu barcha hook asosidagi yordamchilarga xos.
 
 ---
 
 ## 🤝 Hissa qo'shish / Contributing
 
-Loyiha to'liq ochiq kodli va jamoatchilik uchun ochiq. Takliflar, xatoliklar va qo'shimchalar bo'lsa, [Pull Request](https://github.com/nodiranor/yangi_alifboda_yoz/pulls) yoki [Issue](https://github.com/nodiranor/yangi_alifboda_yoz/issues) ochishingiz mumkin. Qo'shimcha ma'lumot uchun [CONTRIBUTING.md](CONTRIBUTING.md) faylini o'qing.
+[CONTRIBUTING.md](CONTRIBUTING.md) faylini o'qing. Takliflar va xatoliklar uchun [Issue](https://github.com/nodiranor/yangi_alifboda_yoz/issues) oching.
 
----
+**Homiy / Sponsor:** [t.me/juraboshibot](https://t.me/juraboshibot)
 
 ## 📜 Litsenziya / License
 
-Ushbu loyiha [MIT License](LICENSE) asosida litsenziyalangan. Undan erkin foydalanish, o'zgartirish va tarqatish mumkin.
+[MIT License](LICENSE).

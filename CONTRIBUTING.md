@@ -9,7 +9,7 @@ Thank you for your interest in contributing to YAY! This project is 100% open-so
 ## 🛠 Ishni boshlash / Getting Started
 
 ### 1. Talablar / Prerequisites
-- **C++ Kompilyator**: MinGW-w64 (`g++` C++17) yoki MSVC (`cl.exe`).
+- **C++ Kompilyator**: Visual Studio 2022 (MSVC) yoki MinGW-w64.
 - **Resurs kompilyatori**: `windres` (MinGW tarkibida).
 - **Inno Setup 6**: O'rnatuvchi paketini (`.exe`) yig'ish uchun.
 - **Python (Pillow)**: Agar `Icon.png` rasmidan yangi `.ico` yaratmoqchi bo'lsangiz.
@@ -21,23 +21,26 @@ cd yangi_alifboda_yoz
 ```
 
 ### 3. Dasturni kompilyatsiya qilish / Building
-MinGW-w64 orqali:
-```bash
-# 1. Resurs faylini yig'ish
-windres yay.rc -O coff -o yay_res.o
-
-# 2. Asosiy dasturni kompilyatsiya qilish
-g++ -O2 -municode -mwindows -static yay.cpp yay_res.o -o YAY.exe -luser32 -lgdi32 -lshell32 -ladvapi32 -lcomctl32
-
-# 3. O'rnatuvchini yig'ish (Inno Setup)
-ISCC.exe YAY_Setup.iss
+MSVC (Visual Studio 2022):
+```bat
+build.cmd
 ```
+Skript testlarni ishga tushiradi, `YAY.exe` ni yig'adi va Inno Setup topilsa o'rnatuvchini yaratadi. Haqiqiy klaviatura bosishlari bilan tekshirish uchun: `tests\e2e.cmd`.
+
+MinGW-w64 (sinab ko'rilmagan / not verified):
+```bash
+mkdir -p build
+(cd res && windres yay.rc -O coff -o ../build/yay_res.o)
+g++ -std=c++17 -Os -s -municode -mwindows -static -D_WIN32_WINNT=0x0601 -D_WIN32_IE=0x0800 src/*.cpp build/yay_res.o -o YAY.exe -luser32 -lgdi32 -lshell32 -ladvapi32 -lcomctl32
+```
+
+Qoidalar mantiqi `src/engine.cpp` da, testlari `tests/test_engine.cpp` da. Qoidalarni o'zgartirsangiz, avval test qo'shing.
 
 ---
 
 ## 📐 Kod yozish qoidalari / Code Guidelines
 
-- **Zero-Dependency**: Dastur hech qanday og'ir kutubxonalar (Qt, Electron, .NET runtime) ishlatmaydi. Faqat sof va yengil Win32 API ishlatiladi.
+- **Zero-Dependency**: Dastur hech qanday og'ir kutubxonalar (Qt, Electron, .NET runtime) va C runtime ishlatmaydi. Faqat sof va yengil Win32 API ishlatiladi (`printf`, `strlen` o'rniga `wsprintfW`, `lstrlenW` kabilar).
 - **Unicode**: Barcha matnlar va API chaqiruvlari `wchar_t` / `Unicode` (`UTF-16`) formatida bo'lishi shart.
 - **Xavfsizlik va Maxfiylik**: Dastur klaviatura bosilishlarini hech qayerga saqlamaydi, yozmaydi va tarmoqqa yubormaydi. Telemetriya taqiqlangan.
 - **Til izolyatsiyasi**: Boshqa tillarga (`ENG`, `RUS`) va tizim tezkor tugmalariga (`Ctrl+C`, `Ctrl+V`, `Alt+Tab`) ta'sir ko'rsatilmasligi shart.
