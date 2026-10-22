@@ -2,9 +2,9 @@
 
 ![YAY oynasi / YAY window](docs/dashboard.png)
 
-**YAY** o'zbek lotin alifbosining yangi harflarini (ş, ç, ö, ğ) oddiy klaviaturada yozish uchun kichik Windows dasturi. U tizim patnisida ishlaydi va faqat Win + Space bilan O'zbek (lotin) klaviaturasi tanlanganda harflarni almashtiradi. Ingliz va rus klaviaturalariga tegmaydi.
+**YAY** o'zbek lotin alifbosining yangi harflarini (ş, ç, ö, ğ) oddiy klaviaturada yozish uchun kichik Windows dasturi. U tizim patnisida ishlaydi va faqat O'zbek (lotin) yoki O'zbek (kirill) klaviaturasi tanlanganda harflarni almashtiradi (Win + Space). Ingliz klaviaturasiga tegmaydi. Rus klaviaturasiga faqat sozlamada yoqsangiz tegadi.
 
-**YAY** is a small Windows program for typing the new Uzbek Latin letters (ş, ç, ö, ğ) on a regular keyboard. It runs in the tray and only acts while the Uzbek (Latin) keyboard layout is selected with Win + Space. English and Russian layouts are left alone.
+**YAY** is a small Windows program for typing the new Uzbek Latin letters (ş, ç, ö, ğ) on a regular keyboard. It runs in the tray and only acts while the Uzbek (Latin) or Uzbek (Cyrillic) keyboard layout is selected (Win + Space). The English layout is left alone, and the Russian layout is only used if you turn it on in the settings.
 
 Homiy / Sponsor: [t.me/juraboshibot](https://t.me/juraboshibot)
 
@@ -24,6 +24,21 @@ Homiy / Sponsor: [t.me/juraboshibot](https://t.me/juraboshibot)
 - Dastur oynasida "Bitta 'c' harfini darhol 'ç' qilib yozish" sozlamasi bor.
 
 Tap the same letter twice quickly to get the new letter: `ss` → ş. If you need the plain double letter (*Rossiya*, *issiq*), tap a third time: `sss` → `ss`. Further taps stay plain: `ssss` → `sss`. "Quickly" means about 0.35 seconds. The legacy forms (`sh`, `ch`, `o'`, `g'`) have no time limit. Enter, Tab and Escape are never touched. For words with ş followed by s (*işsiz*, *tuşsa*), type `sh` + `s`, or pause briefly before the last `s`.
+
+### Kirill / Cyrillic
+
+O'zbek kirill alifbosining ў, қ, ғ, ҳ harflari rus klaviaturasida yo'q. YAY ularni xuddi shu usulda beradi. Bu O'zbek (kirill) klaviaturasi tanlanganda o'zi ishlaydi. Rus (RU) klaviaturasida esa dastur oynasida "Rus (RU) klaviaturasida ham ishlash" belgilansa ishlaydi, chunki rus tilida yozganda ham ishlatiladi.
+
+| Harf / Letter | Tez usul / Fast | Oddiy ikki harf / Plain double |
+| :---: | :---: | :---: |
+| ў Ў | `уу` `УУ` | `ууу` → `уу` |
+| қ Қ | `кк` `КК` | `ккк` → `кк` |
+| ғ Ғ | `гг` `ГГ` | `ггг` → `гг` |
+| ҳ Ҳ | `хх` `ХХ` | `ххх` → `хх` |
+
+Qoidalar lotin bilan bir xil. Eslatma: *икки* so'zini `иккки` deb yozing (`кк` қ ga aylanadi). Rus (RU) da yoqilgan bo'lsa, rus so'zlaridagi `кк`, `уу` (*аккорд*, *вакуум*) ham almashadi, ularni ham uch marta bosib yozing.
+
+The Cyrillic Uzbek letters ў, қ, ғ, ҳ are not on a Russian keyboard. YAY gives them the same way: double tap, triple tap to get the plain letters. It is active on its own while the Uzbek (Cyrillic) layout is selected. On the Russian (RU) layout it is active only if you tick "Rus (RU) klaviaturasida ham ishlash" in the program window, because you may also use that layout to write real Russian. With it on, Russian words with `кк` or `уу` (*аккорд*, *вакуум*) are converted too, and you tap a third time to undo. Type *икки* as `иккки`.
 
 ## O'rnatish / Install
 

@@ -23,6 +23,7 @@
 
 #include "../res/resource.h"
 #include "engine.h"
+#include "keymap.h"
 
 // Private window messages. WM_USER+n is reserved by the dialog manager (DM_SETDEFID), so use WM_APP.
 #define WM_TRAYICON            (WM_APP + 1)
@@ -53,6 +54,7 @@ extern bool        g_bEnabled;
 extern bool        g_bOnlyUzbekLayout;
 extern bool        g_bInstantSingleC;
 extern bool        g_bShowTips;
+extern bool        g_bCyrillicOnRussian;  // also act on the Russian layout (Cyrillic profile)
 extern bool        g_bSendingInput;
 extern bool        g_bWin7PreloadWritten;
 extern EngineState g_engine;
@@ -68,7 +70,10 @@ void SendBackspaceAndChars(int backspaces, const wchar_t *chars);
 bool IsCapsActive();
 
 // layout.cpp
-bool IsUzbekInputMethodActive();
+// What YAY does with keys going to the foreground window right now.
+enum ActiveProfile { AP_NONE, AP_LATIN, AP_CYRILLIC };
+ActiveProfile GetActiveProfile(HKL *outLayout);
+bool IsUzbekInputMethodActive();  // true unless GetActiveProfile() is AP_NONE
 bool IsUzbekLayoutInstalled();
 bool IsWindows8OrGreaterReal();
 void TriggerAddUzbekLayout();

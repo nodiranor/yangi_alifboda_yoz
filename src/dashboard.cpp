@@ -24,10 +24,11 @@ void ShowDashboard() {
 void UpdateDashboardUI() {
   if (!g_hMainWnd || !IsWindowVisible(g_hMainWnd)) return;
 
-  bool active = g_bEnabled && IsUzbekInputMethodActive();
-  const wchar_t *status = !g_bEnabled ? L"Holat: O'chirilgan (pauza). Yoqish uchun tray belgisini bosing."
-                        : active      ? L"Holat: Faol. UZB (O'zbek lotin) tanlangan, yozishingiz mumkin."
-                                      : L"Holat: Kutish rejimi. Boshqa til tanlangan.";
+  const ActiveProfile profile = g_bEnabled ? GetActiveProfile(NULL) : AP_NONE;
+  const wchar_t *status = !g_bEnabled            ? L"Holat: O'chirilgan (pauza). Yoqish uchun tray belgisini bosing."
+                        : profile == AP_LATIN    ? L"Holat: Faol. UZB (O'zbek lotin) tanlangan, yozishingiz mumkin."
+                        : profile == AP_CYRILLIC ? L"Holat: Faol. Kirill rejimi: ў қ ғ ҳ ni ikki marta bosib yozing."
+                                                 : L"Holat: Kutish rejimi. Boshqa til tanlangan.";
   SetTextIfChanged(g_hMainWnd, IDC_STATUS_TEXT, status);
 
   bool uzInstalled = IsUzbekLayoutInstalled();
@@ -49,12 +50,15 @@ void UpdateDashboardUI() {
   wchar_t buf[256];
   if (langId == 0x0443) {
     lstrcpynW(buf, L"Hozirgi klaviatura: UZB (O'zbek lotin). Yangi alifbo faol.", 256);
+  } else if (langId == 0x0843) {
+    lstrcpynW(buf, L"Hozirgi klaviatura: UZB (O'zbek kirill). ў қ ғ ҳ faol.", 256);
   } else if (PRIMARYLANGID(langId) == LANG_ENGLISH) {
     if (!uzInstalled)             lstrcpynW(buf, L"Hozirgi klaviatura: ENG. UZB tili tizimda yo'q, pastdagi tugmani bosing.", 256);
     else if (!g_bOnlyUzbekLayout) lstrcpynW(buf, L"Hozirgi klaviatura: ENG. YAY shu tilda ham ishlaydi.", 256);
     else                          lstrcpynW(buf, L"Hozirgi klaviatura: ENG. UZB tiliga o'tish: Win + Space", 256);
   } else if (PRIMARYLANGID(langId) == LANG_RUSSIAN) {
-    lstrcpynW(buf, L"Hozirgi klaviatura: RUS. Rus tiliga xalaqit bermaydi.", 256);
+    if (g_bCyrillicOnRussian) lstrcpynW(buf, L"Hozirgi klaviatura: RUS. YAY ў қ ғ ҳ uchun ishlaydi.", 256);
+    else                      lstrcpynW(buf, L"Hozirgi klaviatura: RUS. Rus tiliga xalaqit bermaydi.", 256);
   } else {
     wsprintfW(buf, L"Hozirgi klaviatura: 0x%04X. Tilni almashtirish: Win + Space", langId);
   }
@@ -103,6 +107,7 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     SetCheck(hDlg, IDC_CHK_ONLY_UZ, g_bOnlyUzbekLayout);
     SetCheck(hDlg, IDC_CHK_SINGLE_C, g_bInstantSingleC);
     SetCheck(hDlg, IDC_CHK_TIPS, g_bShowTips);
+    SetCheck(hDlg, IDC_CHK_CYR_RU, g_bCyrillicOnRussian);
     SetCheck(hDlg, IDC_CHK_STARTUP, IsInStartup());
     g_shellHookMsg = RegisterWindowMessageW(L"SHELLHOOK");
     g_taskbarCreatedMsg = RegisterWindowMessageW(L"TaskbarCreated");
@@ -122,6 +127,7 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     case IDC_CHK_ONLY_UZ:   g_bOnlyUzbekLayout = GetCheck(hDlg, id); SaveSettings(); UpdateTrayStatus(); return TRUE;
     case IDC_CHK_SINGLE_C:  g_bInstantSingleC = GetCheck(hDlg, id); SaveSettings(); return TRUE;
     case IDC_CHK_TIPS:      g_bShowTips = GetCheck(hDlg, id); SaveSettings(); return TRUE;
+    case IDC_CHK_CYR_RU:    g_bCyrillicOnRussian = GetCheck(hDlg, id); SaveSettings(); UpdateTrayStatus(); return TRUE;
     case IDC_CHK_STARTUP:   ToggleStartup(GetCheck(hDlg, id)); return TRUE;
     case IDC_BTN_HIDE:
     case IDCANCEL:          ShowWindow(hDlg, SW_HIDE); return TRUE;
@@ -149,6 +155,12 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     }
     return FALSE;
   }
+
+#ifdef YAY_ACCEPT_INJECTED
+  case WM_APP + 10:  // test builds only: switch this thread's keyboard layout (tests/e2e.ps1)
+    ActivateKeyboardLayout((HKL)lParam, 0);
+    return TRUE;
+#endif
 
   case WM_LAYOUT_INSTALL_DONE:
     UpdateTrayStatus();

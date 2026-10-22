@@ -14,6 +14,7 @@ bool        g_bEnabled          = true;
 bool        g_bOnlyUzbekLayout  = true;
 bool        g_bInstantSingleC   = false;
 bool        g_bShowTips         = true;
+bool        g_bCyrillicOnRussian = false;
 bool        g_bSendingInput     = false;
 bool        g_bWin7PreloadWritten = false;
 EngineState g_engine            = {ER_NONE, 0, {0, 0}, 0, DOUBLE_TAP_MS};
@@ -56,6 +57,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
   LoadSettings();
 #ifdef YAY_ACCEPT_INJECTED
   g_bOnlyUzbekLayout = false;   // test build: work on the English layout
+  g_bCyrillicOnRussian = true;  // test build: also work on the Russian layout
 #endif
 
   INITCOMMONCONTROLSEX icex = { sizeof(icex), ICC_STANDARD_CLASSES | ICC_LINK_CLASS };

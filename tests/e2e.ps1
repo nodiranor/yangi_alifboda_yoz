@@ -1,8 +1,9 @@
 # End-to-end typing test for YAY. Run through tests\e2e.cmd, which builds build\YAY_test.exe first.
 #
 # The test exe differs from the real one in two ways (see YAY_ACCEPT_INJECTED in src): it also
-# processes keys injected by other programs, and it works on the English layout. This script
-# starts it, types real key events into the dashboard's test box and reads the box back.
+# processes keys injected by other programs, and it works on the English and Russian layouts.
+# This script starts it, types real key events into the dashboard's test box and reads the box back.
+# The Cyrillic part briefly switches the dashboard's keyboard layout to Russian and switches it back.
 #
 # Warning: stops any running YAY.exe / YAY_test.exe first.
 
@@ -20,6 +21,10 @@ public static class K {
   [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
   [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
   [DllImport("user32.dll")] public static extern short GetKeyState(int vk);
+  [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern IntPtr LoadKeyboardLayout(string id, uint flags);
+  [DllImport("user32.dll")] public static extern IntPtr GetKeyboardLayout(uint tid);
+  [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+  [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
 }
 "@
 
@@ -115,6 +120,66 @@ TypeKeys 'a'
 $hidden = -not [K]::IsWindowVisible($pill)
 "{0,-6} coach pill shown after 'sh': {1}, hidden after next key: {2}" -f $(if ($shown -and $hidden) { 'ok' } else { 'FAIL' }), $shown, $hidden
 if (-not ($shown -and $hidden)) { $fail++ }
+
+# Cyrillic profile on the Russian layout. The dashboard's keyboard layout is switched to Russian
+# for this part and always switched back.
+function Cyr([int[]]$codes) { return (($codes | ForEach-Object { [string][char]$_ }) -join '') }
+$ruKeys = @{}
+$ruKeys[(Cyr 0x0443)] = 0x45   # у  (E key)
+$ruKeys[(Cyr 0x043A)] = 0x52   # к  (R key)
+$ruKeys[(Cyr 0x0433)] = 0x55   # г  (U key)
+$ruKeys[(Cyr 0x0445)] = 0xDB   # х  ([ key)
+$ruKeys[(Cyr 0x0438)] = 0x42   # и  (B key)
+$ruKeys[(Cyr 0x0437)] = 0x50   # з  (P key)
+$ruKeys[(Cyr 0x0431)] = 0xBC   # б  (, key)
+$ruKeys[(Cyr 0x0435)] = 0x54   # е  (T key)
+
+function TypeRu([string]$text) {
+  foreach ($c in $text.ToCharArray()) {
+    if ($c -eq '|') { Start-Sleep -Milliseconds 600; continue }
+    Tap ([byte]$ruKeys[[string][char]::ToLower($c)]) ([char]::IsUpper($c))
+  }
+  Start-Sleep -Milliseconds 120
+}
+function Show([string]$s) { return (($s.ToCharArray() | ForEach-Object { if ([int]$_ -lt 128) { [string]$_ } else { '\u{0:X4}' -f [int]$_ } }) -join '') }
+
+$procId = [uint32]0
+$tid = [K]::GetWindowThreadProcessId($dash, [ref]$procId)
+$origLayout = [K]::GetKeyboardLayout($tid)
+$ruLayout = [K]::LoadKeyboardLayout("00000419", 0)
+try {
+  [void][K]::PostMessage($dash, 0x800A, [IntPtr]::Zero, $ruLayout)   # test-only message: switch the dashboard's layout
+  Start-Sleep -Milliseconds 500
+  $langNow = [int]([K]::GetKeyboardLayout($tid).ToInt64() -band 0xFFFF)
+  if ($langNow -ne 0x0419) {
+    Write-Host ("FAIL   could not switch the dashboard to the Russian layout (now 0x{0:X4})" -f $langNow); $fail++
+  } else {
+    $cyrCases = @(
+      @((Cyr 0x0443,0x0443),                 (Cyr 0x045E)),                       # уу   -> ў
+      @((Cyr 0x0423,0x0423),                 (Cyr 0x040E)),                       # УУ   -> Ў
+      @((Cyr 0x0443,0x0443,0x0443),          (Cyr 0x0443,0x0443)),                # ууу  -> уу
+      @((Cyr 0x043A,0x043A),                 (Cyr 0x049B)),                       # кк   -> қ
+      @((Cyr 0x041A,0x041A),                 (Cyr 0x049A)),                       # КК   -> Қ
+      @((Cyr 0x0433,0x0433),                 (Cyr 0x0493)),                       # гг   -> ғ
+      @((Cyr 0x0445,0x0445),                 (Cyr 0x04B3)),                       # хх   -> ҳ
+      @((Cyr 0x0443,0x0443,0x0437,0x0431,0x0435,0x043A), (Cyr 0x045E,0x0437,0x0431,0x0435,0x043A)),  # уузбек -> ўзбек
+      @((Cyr 0x0438,0x043A,0x043A,0x043A,0x0438),        (Cyr 0x0438,0x043A,0x043A,0x0438)),         # иккки -> икки
+      @(((Cyr 0x0443) + '|' + (Cyr 0x0443)), (Cyr 0x0443,0x0443))                                        # у|у   -> уу
+    )
+    foreach ($case in $cyrCases) {
+      ClearEdit
+      Tap 0x7C $false
+      TypeRu $case[0]
+      $got = ReadEdit
+      $ok = ($got -ceq $case[1])
+      if (-not $ok) { $fail++ }
+      "{0,-6} RU {1,-24} -> {2,-20} expected {3}" -f $(if ($ok) { 'ok' } else { 'FAIL' }), (Show $case[0]), (Show $got), (Show $case[1])
+    }
+  }
+} finally {
+  [void][K]::PostMessage($dash, 0x800A, [IntPtr]::Zero, $origLayout)
+  Start-Sleep -Milliseconds 300
+}
 
 $proc | Stop-Process -Force
 if ($fail -eq 0) { Write-Host "e2e: all passed" } else { Write-Host "e2e: $fail FAILED" }

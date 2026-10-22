@@ -21,6 +21,7 @@ void LoadSettings() {
   ReadBool(hKey, L"OnlyUzbek", &g_bOnlyUzbekLayout);
   ReadBool(hKey, L"SingleC", &g_bInstantSingleC);
   ReadBool(hKey, L"ShowTips", &g_bShowTips);
+  ReadBool(hKey, L"CyrillicOnRussian", &g_bCyrillicOnRussian);
   RegCloseKey(hKey);
 }
 
@@ -30,6 +31,7 @@ void SaveSettings() {
   WriteBool(hKey, L"OnlyUzbek", g_bOnlyUzbekLayout);
   WriteBool(hKey, L"SingleC", g_bInstantSingleC);
   WriteBool(hKey, L"ShowTips", g_bShowTips);
+  WriteBool(hKey, L"CyrillicOnRussian", g_bCyrillicOnRussian);
   RegCloseKey(hKey);
 }
 

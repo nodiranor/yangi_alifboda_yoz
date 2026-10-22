@@ -10,7 +10,8 @@ See [README.md](README.md). In short: `build.cmd` runs the engine tests and buil
 
 ## Where things are
 
-- `src/engine.cpp`: the typing rules. It has no Win32 calls, so it is tested directly by `tests/test_engine.cpp`.
+- `src/engine.cpp`: the typing rules for the Latin and Cyrillic alphabets. It has no Win32 calls, so it is tested directly by `tests/test_engine.cpp`.
+- `src/keymap.cpp`: asks Windows which Cyrillic letter a key produces on the active layout (`tests/test_keymap.cpp`).
 - `src/hook.cpp`: turns keyboard events into engine input and sends the replacement.
 - `src/dashboard.cpp`, `src/tray.cpp`, `src/pill.cpp`: the window, the tray icon and the small hint popup.
 - `src/layout.cpp`: keyboard layout detection and adding the Uzbek layout.

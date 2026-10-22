@@ -21,7 +21,12 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
 #else
   const bool skipInjected = (k->flags & LLKHF_INJECTED) != 0;
 #endif
-  if (!isDown || skipInjected || !IsUzbekInputMethodActive())
+  if (!isDown || skipInjected)
+    return CallNextHookEx(g_hHook, nCode, wParam, lParam);
+
+  HKL layout = NULL;
+  const ActiveProfile profile = GetActiveProfile(&layout);
+  if (profile == AP_NONE)
     return CallNextHookEx(g_hHook, nCode, wParam, lParam);
 
   const DWORD vk = k->vkCode;
@@ -31,6 +36,10 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     kind = EK_MODIFIER;
   } else if (wParam == WM_SYSKEYDOWN || KeyHeld(VK_CONTROL) || KeyHeld(VK_MENU) || KeyHeld(VK_LWIN) || KeyHeld(VK_RWIN)) {
     kind = EK_COMBO;
+  } else if (profile == AP_CYRILLIC) {
+    // Ask Windows which letter this key produces on the active layout.
+    ch = CyrillicCharForKey(vk, k->scanCode, IsCapsActive(), layout);
+    kind = ch ? EK_LETTER : EK_OTHER;
   } else if (vk >= 'A' && vk <= 'Z') {
     kind = EK_LETTER;
     ch = IsCapsActive() ? (wchar_t)vk : (wchar_t)(vk + 32);
@@ -40,9 +49,10 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     kind = EK_OTHER;
   }
 
+  EngineSetProfile(&g_engine, profile == AP_CYRILLIC ? EP_CYRILLIC : EP_LATIN);
   if (kind != EK_MODIFIER) HidePill();
 
-  if (g_bInstantSingleC && kind == EK_LETTER && (ch == L'c' || ch == L'C')) {
+  if (profile == AP_LATIN && g_bInstantSingleC && kind == EK_LETTER && (ch == L'c' || ch == L'C')) {
     EngineReset(&g_engine);
     SendBackspaceAndChars(0, ch == L'C' ? L"Ç" : L"ç");
     return 1;

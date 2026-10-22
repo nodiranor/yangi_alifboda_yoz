@@ -1,17 +1,30 @@
 #include "app.h"
 
-// True when YAY should act on keys going to the foreground window.
-// Strict mode: only Uzbek Latin (0x0443). Permissive mode: Uzbek Latin or English.
-// Russian, Uzbek Cyrillic and every other layout are always left alone.
-bool IsUzbekInputMethodActive() {
-  if (!g_bEnabled) return false;
+// Decides which alphabet applies to keys going to the foreground window.
+//   Uzbek Latin (0x0443)                 -> Latin rules
+//   English, unless strict mode is on    -> Latin rules
+//   Uzbek Cyrillic (0x0843)              -> Cyrillic rules
+//   Russian, only if the option is on    -> Cyrillic rules
+// Every other layout is left alone.
+ActiveProfile GetActiveProfile(HKL *outLayout) {
+  if (outLayout) *outLayout = NULL;
+  if (!g_bEnabled) return AP_NONE;
   HWND hFg = GetForegroundWindow();
   DWORD tid = hFg ? GetWindowThreadProcessId(hFg, NULL) : 0;
-  WORD langId = LOWORD((DWORD_PTR)GetKeyboardLayout(tid));
+  HKL hkl = GetKeyboardLayout(tid);
+  if (outLayout) *outLayout = hkl;
+  WORD langId = LOWORD((DWORD_PTR)hkl);
   WORD primary = PRIMARYLANGID(langId);
-  if (langId == 0x0443 || (primary == LANG_UZBEK && SUBLANGID(langId) == SUBLANG_UZBEK_LATIN)) return true;
-  if (g_bOnlyUzbekLayout) return false;
-  return primary == LANG_ENGLISH;
+  WORD sub = SUBLANGID(langId);
+  if (langId == 0x0443 || (primary == LANG_UZBEK && sub == SUBLANG_UZBEK_LATIN)) return AP_LATIN;
+  if (langId == 0x0843 || (primary == LANG_UZBEK && sub == SUBLANG_UZBEK_CYRILLIC)) return AP_CYRILLIC;
+  if (primary == LANG_RUSSIAN) return g_bCyrillicOnRussian ? AP_CYRILLIC : AP_NONE;
+  if (!g_bOnlyUzbekLayout && primary == LANG_ENGLISH) return AP_LATIN;
+  return AP_NONE;
+}
+
+bool IsUzbekInputMethodActive() {
+  return GetActiveProfile(NULL) != AP_NONE;
 }
 
 bool IsUzbekLayoutInstalled() {

@@ -23,6 +23,8 @@
 #define IDC_CHK_TIPS           3016
 #define IDC_CHK_STARTUP        3003
 #define IDC_SPONSOR            3017
+#define IDC_RULE4              3018
+#define IDC_CHK_CYR_RU         3019
 #define IDC_BTN_HIDE           3004
 #define IDC_BTN_EXIT           3005
 

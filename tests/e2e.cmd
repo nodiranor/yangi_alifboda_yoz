@@ -17,7 +17,7 @@ if errorlevel 1 exit /b 1
 if not exist build\yay.res ( echo Run build.cmd first. & exit /b 1 )
 if not exist build\test mkdir build\test
 
-cl /nologo /W3 /O1 /Os /GL /GS- /Gy /Gw /EHs-c- /GR- /utf-8 /DUNICODE /D_UNICODE /D_WIN32_WINNT=0x0601 /DWINVER=0x0601 /DNDEBUG /DYAY_ACCEPT_INJECTED /Fobuild\test\ /Febuild\YAY_test.exe src\main.cpp src\hook.cpp src\engine.cpp src\inject.cpp src\layout.cpp src\settings.cpp src\tray.cpp src\pill.cpp src\dashboard.cpp build\nocrt.obj build\yay.res /link /nologo /LTCG /OPT:REF /OPT:ICF /MANIFEST:NO /SUBSYSTEM:WINDOWS,6.01 /INCREMENTAL:NO /NODEFAULTLIB /ENTRY:YayStartup kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib comctl32.lib
+cl /nologo /W3 /O1 /Os /GL /GS- /Gy /Gw /EHs-c- /GR- /utf-8 /DUNICODE /D_UNICODE /D_WIN32_WINNT=0x0601 /DWINVER=0x0601 /DNDEBUG /DYAY_ACCEPT_INJECTED /Fobuild\test\ /Febuild\YAY_test.exe src\main.cpp src\hook.cpp src\engine.cpp src\inject.cpp src\keymap.cpp src\layout.cpp src\settings.cpp src\tray.cpp src\pill.cpp src\dashboard.cpp build\nocrt.obj build\yay.res /link /nologo /LTCG /OPT:REF /OPT:ICF /MANIFEST:NO /SUBSYSTEM:WINDOWS,6.01 /INCREMENTAL:NO /NODEFAULTLIB /ENTRY:YayStartup kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib comctl32.lib
 if errorlevel 1 exit /b 1
 
 powershell -NoProfile -ExecutionPolicy Bypass -File tests\e2e.ps1
