@@ -151,6 +151,10 @@ void UpdateDashboardUI();
 void UpdateTrayStatus();
 void DismissAllPopups();
 
+inline void AppLog(const wchar_t *msg) {
+  OutputDebugStringW(msg);
+}
+
 // ============================================================================
 // 3. ICON CREATION & FALLBACK GENERATOR
 // ============================================================================
@@ -366,7 +370,12 @@ void UpdateTrayStatus() {
   if (g_nid.hIcon != newIcon || wcscmp(g_nid.szTip, newTip) != 0) {
     g_nid.hIcon = newIcon;
     wcscpy_s(g_nid.szTip, 128, newTip);
+    g_nid.uFlags = NIF_ICON | NIF_TIP;
+    g_nid.szInfo[0] = L'\0';
+    g_nid.szInfoTitle[0] = L'\0';
+    g_nid.dwInfoFlags = 0;
     Shell_NotifyIconW(NIM_MODIFY, &g_nid);
+    g_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
   }
 
   UpdateDashboardUI();
@@ -638,9 +647,15 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
       // If user tapped Enter right after double-tap (e.g. "ss"), revert 'ş' back to literal "ss"!
       if (g_bUndoDoubleTapActive) {
         if (vk == VK_RETURN || vk == VK_TAB) {
+          wchar_t origChars[8] = {0};
+          if (g_undoOriginalChars[0] != 0) {
+            wcscpy_s(origChars, 8, g_undoOriginalChars);
+          }
           DismissAllPopups();
           // Replace the single reformed char with the original double characters
-          SendBackspaceAndChars(1, g_undoOriginalChars);
+          if (origChars[0] != 0) {
+            SendBackspaceAndChars(1, origChars);
+          }
           g_lastChar = 0;
           return 1; // Suppress Enter/Tab so literal "ss" is kept without newline
         } else if (vk == VK_ESCAPE) {
@@ -974,13 +989,18 @@ LRESULT CALLBACK DashboardWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
       bool enable = (SendMessageW(GetDlgItem(hWnd, IDC_CHK_STARTUP), BM_GETCHECK, 0, 0) == BST_CHECKED);
       ToggleStartup(enable);
     } else if (id == IDC_BTN_HIDE) {
+      AppLog(L"IDC_BTN_HIDE clicked: hiding window to tray");
       ShowWindow(hWnd, SW_HIDE);
     } else if (id == IDC_BTN_EXIT || id == ID_TRAY_EXIT) {
-      PostQuitMessage(0);
+      AppLog(L"Exit command received (IDC_BTN_EXIT / ID_TRAY_EXIT): calling DestroyWindow");
+      DestroyWindow(hWnd);
+      return 0;
     } else if (id == ID_TRAY_OPEN_DASHBOARD) {
+      AppLog(L"ID_TRAY_OPEN_DASHBOARD received: restoring and showing window");
       ShowWindow(hWnd, SW_SHOW);
       ShowWindow(hWnd, SW_RESTORE);
       SetForegroundWindow(hWnd);
+      SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
       UpdateDashboardUI();
     } else if (id == ID_TRAY_ENABLE) {
       g_bEnabled = !g_bEnabled;
@@ -999,7 +1019,7 @@ LRESULT CALLBACK DashboardWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
   }
 
   case WM_CLOSE:
-    // Closing minimizes to tray instead of terminating
+    AppLog(L"WM_CLOSE received: minimizing window to tray (SW_HIDE)");
     ShowWindow(hWnd, SW_HIDE);
     return 0;
 
@@ -1022,6 +1042,7 @@ LRESULT CALLBACK DashboardWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
       ShowWindow(hWnd, SW_SHOW);
       ShowWindow(hWnd, SW_RESTORE);
       SetForegroundWindow(hWnd);
+      SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
       UpdateDashboardUI();
     } else if (lParam == WM_RBUTTONUP) {
       // Right click: bilingual options popup menu
@@ -1053,6 +1074,7 @@ LRESULT CALLBACK DashboardWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
     return 0;
 
   case WM_DESTROY:
+    AppLog(L"WM_DESTROY: removing tray icon and posting quit message");
     KillTimer(hWnd, TIMER_CHECK_LANG);
     Shell_NotifyIconW(NIM_DELETE, &g_nid);
     PostQuitMessage(0);
@@ -1067,22 +1089,50 @@ LRESULT CALLBACK DashboardWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                     PWSTR lpCmdLine, int nCmdShow) {
+  const wchar_t *fullCmd = GetCommandLineW();
+  wchar_t startLog[512];
+  swprintf_s(startLog, 512, L"1. wWinMain started: [%s]", fullCmd ? fullCmd : L"");
+  AppLog(startLog);
+
   // Prevent duplicate instances using a named system mutex
   HANDLE hMutex = CreateMutexW(NULL, TRUE, L"YAY_YangiAlifbodaYoz_Mutex");
   if (GetLastError() == ERROR_ALREADY_EXISTS) {
-    // Bring already running instance to front
+    bool wantTray = (fullCmd && (wcsstr(fullCmd, L"/tray") != NULL || wcsstr(fullCmd, L"/minimized") != NULL));
+    AppLog(wantTray ? L"1a. Instance already running, wantTray=true -> exiting immediately"
+                    : L"1a. Instance already running, activating existing window");
+
+    // Look for existing window
     HWND hExisting = FindWindowW(L"YAYDashboardClass", NULL);
-    if (hExisting) {
-      ShowWindow(hExisting, SW_SHOW);
-      ShowWindow(hExisting, SW_RESTORE);
-      SetForegroundWindow(hExisting);
+    if (!hExisting) {
+      // In case another instance is right in the middle of creating its window, wait briefly
+      Sleep(150);
+      hExisting = FindWindowW(L"YAYDashboardClass", NULL);
     }
-    return 0;
+
+    if (hExisting) {
+      if (!wantTray) {
+        AllowSetForegroundWindow(ASFW_ANY);
+        SendMessageW(hExisting, WM_COMMAND, MAKEWPARAM(ID_TRAY_OPEN_DASHBOARD, 0), 0);
+        ShowWindow(hExisting, SW_SHOW);
+        ShowWindow(hExisting, SW_RESTORE);
+        SetForegroundWindow(hExisting);
+        SetWindowPos(hExisting, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+      }
+      CloseHandle(hMutex);
+      return 0;
+    } else {
+      AppLog(L"1b. Mutex existed but no active window found (orphaned/stuck). Taking over as active instance.");
+      // Continue startup so the user is never locked out from opening the app!
+    }
   }
+  AppLog(L"2. Mutex initialized for this active instance");
 
   // Ensure Uzbek Latin input method is registered in Windows
   if (!IsUzbekLayoutInstalled()) {
+    AppLog(L"3. Uzbek layout not installed, triggering background installer");
     TriggerAddUzbekLayout();
+  } else {
+    AppLog(L"3. Uzbek layout already installed");
   }
 
   if (!hInstance)
@@ -1133,7 +1183,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   wcMain.lpszClassName = L"YAYDashboardClass";
   wcMain.hCursor = LoadCursor(NULL, IDC_ARROW);
   wcMain.hIcon = g_hIconActive;
-  RegisterClassW(&wcMain);
+  ATOM aRes = RegisterClassW(&wcMain);
+  wchar_t regMsg[128];
+  swprintf_s(regMsg, 128, L"4. RegisterClassW result: %p, err: %lu", (void*)(DWORD_PTR)aRes, GetLastError());
+  AppLog(regMsg);
 
   // Register Floating Pill Window Class
   WNDCLASSW wcPopup = {0};
@@ -1154,6 +1207,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                                APP_NAME,
                                WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
                                startX, startY, winW, winH, NULL, NULL, hInstance, NULL);
+
+  wchar_t createMsg[128];
+  swprintf_s(createMsg, 128, L"5. CreateWindowExW result: %p, err: %lu", (void*)g_hMainWnd, GetLastError());
+  AppLog(createMsg);
 
   // Set big and small window icons
   HICON hBigIcon = (HICON)LoadImageW(hInstance, MAKEINTRESOURCEW(IDI_APPICON), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR);
@@ -1186,12 +1243,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   Shell_NotifyIconW(NIM_ADD, &g_nid);
 
+  // Clear NIF_INFO immediately so periodic language switches do not re-trigger notifications!
+  g_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+  g_nid.szInfo[0] = L'\0';
+  g_nid.szInfoTitle[0] = L'\0';
+  g_nid.dwInfoFlags = 0;
+
   // Periodic language state check (every 250ms) to update tray icon and dashboard
   SetTimer(g_hMainWnd, TIMER_CHECK_LANG, 250, NULL);
   UpdateTrayStatus();
 
   // If started with /tray or /minimized, hide to tray; otherwise show dashboard window
-  bool startInTray = (lpCmdLine && (wcsstr(lpCmdLine, L"/tray") != NULL || wcsstr(lpCmdLine, L"/minimized") != NULL));
+  bool startInTray = (fullCmd && (wcsstr(fullCmd, L"/tray") != NULL || wcsstr(fullCmd, L"/minimized") != NULL));
+  AppLog(startInTray ? L"6. Starting hidden in tray" : L"6. Starting visible dashboard");
   if (!startInTray) {
     ShowWindow(g_hMainWnd, SW_SHOW);
     UpdateWindow(g_hMainWnd);
@@ -1201,12 +1265,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   // Install Low-Level Keyboard Hook
   g_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, LowLevelKeyboardProc, hInstance, 0);
 
+  AppLog(L"7. Entering message loop");
   // Main Win32 Message Loop
   MSG msg;
   while (GetMessageW(&msg, NULL, 0, 0)) {
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
   }
+  wchar_t loopEndMsg[128];
+  swprintf_s(loopEndMsg, 128, L"8. Message loop ended, msg: 0x%X wParam: %lu", msg.message, (DWORD)msg.wParam);
+  AppLog(loopEndMsg);
 
   // Cleanup upon exit
   if (g_hHook)
@@ -1224,7 +1292,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (hBigIcon)
     DestroyIcon(hBigIcon);
 
-  CloseHandle(hMutex);
+  if (hMutex) {
+    ReleaseMutex(hMutex);
+    CloseHandle(hMutex);
+  }
+  AppLog(L"9. Process exiting cleanly");
+  ExitProcess(0);
   return 0;
 }
 
