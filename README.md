@@ -49,7 +49,7 @@ If you are used to a Cyrillic keyboard: while the Uzbek (Cyrillic) layout is sel
 
 ## Örnatiş / Install
 
-[Releases](https://github.com/nodiranor/yangi_alifboda_yoz/releases) sahifasidan `YAY_Setup.exe` (örnatuvçi) yoki `YAY.exe` (örnatmasdan işlaydi) ni yuklab oling. Windows 7 SP1 va undan yangisi, 32 yoki 64 bit. `YAY.exe /tray` oynasiz, faqat tizim patnisida işga tuşadi.
+[Releases](https://github.com/nodiranor/yangi_alifboda_yoz/releases) sahifasidan `YAY_Setup.exe` (örnatuvçi) yoki `YAY.exe` (örnatmasdan işlaydi) ni yuklab oling. Windows 7 SP1 va undan yangisi, 32 yoki 64 bit. `YAY.exe /tray` oynasiz, faqat tizim pastidan işga tuşadi.
 
 Download `YAY_Setup.exe` (installer) or the portable `YAY.exe` from the Releases page. Windows 7 SP1 or newer, 32 or 64 bit. `YAY.exe /tray` starts in the tray without a window.
 
