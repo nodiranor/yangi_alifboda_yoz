@@ -11,7 +11,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%207%20%7C%208%20%7C%2010%20%7C%2011-blue?logo=windows)](https://github.com/nodiranor/yangi_alifboda_yoz)
 [![C++](https://img.shields.io/badge/Language-C%2B%2B%20%28Pure%20Win32%29-00599C?logo=c%2B%2B)](src)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Size](https://img.shields.io/badge/Size-~50%20KB-success.svg)](#-yuklab-olish--installation)
+[![Size](https://img.shields.io/badge/Size-~57%20KB-success.svg)](#-yuklab-olish--installation)
 [![Zero Dependency](https://img.shields.io/badge/Dependencies-None-orange.svg)](#-texnik-xususiyatlar--technical-notes)
 
 [O'zbekcha](#-ozbekcha) • [English](#-english) • [Qoidalar / Rules](#%EF%B8%8F-alifbo-qoidalari--typing-rules) • [O'rnatish / Install](#-ornatish--installation) • [Kompilyatsiya / Build](#-yigish--building-from-source)
@@ -33,7 +33,7 @@ Dastur boshqa tillarga (`ENG`, `RUS`) xalaqit bermaydi. U faqat **Win + Space** 
 - 🪟 **Windows 7, 8, 8.1, 10, 11** — bitta fayl, 32 va 64 bitli tizimlarda.
 - 🧘 **Oddiy Windows oynasi**: tizim shriftlari va tugmalari, yuqori aniqlikdagi (DPI) ekranlarda ham tiniq.
 - 🔒 **Maxfiy**: internetga ulanmaydi, hech narsa yozib olmaydi.
-- 🪶 **Juda yengil**: bitta ~50 KB `.exe`, qo'shimcha kutubxonalar yo'q, kutish holatida protsessorni ishlatmaydi.
+- 🪶 **Juda yengil**: bitta ~57 KB `.exe`, qo'shimcha kutubxonalar yo'q, kutish holatida protsessorni ishlatmaydi.
 
 ---
 
@@ -48,7 +48,7 @@ Dastur boshqa tillarga (`ENG`, `RUS`) xalaqit bermaydi. U faqat **Win + Space** 
 - 🪟 **Windows 7 through 11**, one 32-bit exe for every edition.
 - 🧘 **Plain Windows dialog**: standard controls, system font, crisp on high-DPI screens.
 - 🔒 **Private**: no network, no logging.
-- 🪶 **Lightweight**: one ~50 KB `.exe`, no runtime dependencies, zero CPU while idle.
+- 🪶 **Lightweight**: one ~57 KB `.exe`, no runtime dependencies, zero CPU while idle.
 
 ---
 
@@ -136,7 +136,7 @@ python tools/make_icons.py Icon.png res/app.ico res/app_paused.ico
 
 ## 🔧 Texnik xususiyatlar / Technical notes
 
-- Sof Win32 API: C++ standart kutubxonasi, istisnolar va C runtime ishlatilmaydi. Natijada bitta ~50 KB `.exe`.
+- Sof Win32 API: C++ standart kutubxonasi, istisnolar va C runtime ishlatilmaydi. Natijada bitta ~57 KB `.exe`.
 - Klaviatura hodisalari `WH_KEYBOARD_LL` orqali kuzatiladi, almashtirish `SendInput` bilan yuboriladi. Til o'zgarishi Windows xabarlari orqali bilinadi, taymer bilan so'ralmaydi.
 - Oyna — oddiy `DIALOGEX` resursi; manifest orqali Common Controls v6 va DPI (PerMonitorV2) qo'llab-quvvatlanadi.
 - Ma'lum cheklov: matn maydonida avtomatik to'ldirish tanlangan bo'lsa (masalan, Chrome manzil satrida URL taklifi), yuborilgan Backspace harf o'rniga taklifni o'chirishi mumkin. Bu barcha hook asosidagi yordamchilarga xos.
