@@ -53,7 +53,7 @@ BEGIN
     LTEXT           "ss → ş          oo → ö          gg → ğ          cc → ç", IDC_RULE1, 15, 67, 290, 10
     LTEXT           "Uch marta bossangiz asl harflar qoladi: sss → ss, ooo → oo", IDC_RULE2, 15, 79, 290, 10
     LTEXT           "Eski usul ham ishlaydi: sh → ş, ch → ç, o' → ö, g' → ğ", IDC_RULE3, 15, 91, 290, 10
-    LTEXT           "Kirill (UZB yoki RU): уу → ў, кк → қ, гг → ғ, хх → ҳ. Uch marta bossangiz asl harflar qoladi: ууу → уу.", IDC_RULE4, 15, 103, 290, 20
+    LTEXT           "Kirill klaviaturada yozsangiz lotin chiqadi: ш → ş, ч → ç, ў → ö, ғ → ğ, қ → q, ҳ → h, ё → yo, ю → yu, я → ya.", IDC_RULE4, 15, 103, 290, 20
     LTEXT           "Sinab ko'ring:", IDC_TEST_LABEL, 15, 129, 48, 10
     EDITTEXT        IDC_EDIT_TEST, 66, 126, 239, 14, ES_AUTOHSCROLL
 
@@ -61,7 +61,7 @@ BEGIN
     AUTOCHECKBOX    "Faqat O'zbek (UZB) tili tanlanganda ishlash", IDC_CHK_ONLY_UZ, 15, 166, 290, 10
     AUTOCHECKBOX    "Bitta 'c' harfini darhol 'ç' qilib yozish", IDC_CHK_SINGLE_C, 15, 180, 290, 10
     AUTOCHECKBOX    "Eski usulda yozganda maslahat ko'rsatish", IDC_CHK_TIPS, 15, 194, 290, 10
-    AUTOCHECKBOX    "Rus (RU) klaviaturasida ham ishlash (rus so'zlari ham almashadi)", IDC_CHK_CYR_RU, 15, 208, 290, 10
+    AUTOCHECKBOX    "Rus (RU) klaviaturasida ham o'girish (rus matni ham lotin bo'ladi)", IDC_CHK_CYR_RU, 15, 208, 290, 10
     AUTOCHECKBOX    "Windows bilan birga ishga tushirish", IDC_CHK_STARTUP, 15, 222, 290, 10
 
     CONTROL         "Homiy: <a href=""https://t.me/juraboshibot"">t.me/juraboshibot</a>", IDC_SPONSOR, "SysLink", WS_TABSTOP, 7, 250, 160, 10

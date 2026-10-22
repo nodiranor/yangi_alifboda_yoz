@@ -18,6 +18,7 @@ bool        g_bCyrillicOnRussian = false;
 bool        g_bSendingInput     = false;
 bool        g_bWin7PreloadWritten = false;
 EngineState g_engine            = {ER_NONE, 0, {0, 0}, 0, DOUBLE_TAP_MS};
+TranslitState g_translit        = {{0}, 0};
 
 static bool ContainsW(const wchar_t *hay, const wchar_t *needle) {
   for (; *hay; hay++) {

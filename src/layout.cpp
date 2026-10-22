@@ -3,8 +3,8 @@
 // Decides which alphabet applies to keys going to the foreground window.
 //   Uzbek Latin (0x0443)                 -> Latin rules
 //   English, unless strict mode is on    -> Latin rules
-//   Uzbek Cyrillic (0x0843)              -> Cyrillic rules
-//   Russian, only if the option is on    -> Cyrillic rules
+//   Uzbek Cyrillic (0x0843)              -> Cyrillic to Latin conversion
+//   Russian, only if the option is on    -> Cyrillic to Latin conversion
 // Every other layout is left alone.
 ActiveProfile GetActiveProfile(HKL *outLayout) {
   if (outLayout) *outLayout = NULL;

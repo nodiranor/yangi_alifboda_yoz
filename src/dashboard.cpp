@@ -27,7 +27,7 @@ void UpdateDashboardUI() {
   const ActiveProfile profile = g_bEnabled ? GetActiveProfile(NULL) : AP_NONE;
   const wchar_t *status = !g_bEnabled            ? L"Holat: O'chirilgan (pauza). Yoqish uchun tray belgisini bosing."
                         : profile == AP_LATIN    ? L"Holat: Faol. UZB (O'zbek lotin) tanlangan, yozishingiz mumkin."
-                        : profile == AP_CYRILLIC ? L"Holat: Faol. Kirill rejimi: ў қ ғ ҳ ni ikki marta bosib yozing."
+                        : profile == AP_CYRILLIC ? L"Holat: Faol. Kirillda yozing, yangi lotin alifbosida chiqadi."
                                                  : L"Holat: Kutish rejimi. Boshqa til tanlangan.";
   SetTextIfChanged(g_hMainWnd, IDC_STATUS_TEXT, status);
 
@@ -51,13 +51,13 @@ void UpdateDashboardUI() {
   if (langId == 0x0443) {
     lstrcpynW(buf, L"Hozirgi klaviatura: UZB (O'zbek lotin). Yangi alifbo faol.", 256);
   } else if (langId == 0x0843) {
-    lstrcpynW(buf, L"Hozirgi klaviatura: UZB (O'zbek kirill). ў қ ғ ҳ faol.", 256);
+    lstrcpynW(buf, L"Hozirgi klaviatura: UZB (O'zbek kirill). Kirill harflar lotinga o'giriladi.", 256);
   } else if (PRIMARYLANGID(langId) == LANG_ENGLISH) {
     if (!uzInstalled)             lstrcpynW(buf, L"Hozirgi klaviatura: ENG. UZB tili tizimda yo'q, pastdagi tugmani bosing.", 256);
     else if (!g_bOnlyUzbekLayout) lstrcpynW(buf, L"Hozirgi klaviatura: ENG. YAY shu tilda ham ishlaydi.", 256);
     else                          lstrcpynW(buf, L"Hozirgi klaviatura: ENG. UZB tiliga o'tish: Win + Space", 256);
   } else if (PRIMARYLANGID(langId) == LANG_RUSSIAN) {
-    if (g_bCyrillicOnRussian) lstrcpynW(buf, L"Hozirgi klaviatura: RUS. YAY ў қ ғ ҳ uchun ishlaydi.", 256);
+    if (g_bCyrillicOnRussian) lstrcpynW(buf, L"Hozirgi klaviatura: RUS. Kirill harflar lotinga o'giriladi.", 256);
     else                      lstrcpynW(buf, L"Hozirgi klaviatura: RUS. Rus tiliga xalaqit bermaydi.", 256);
   } else {
     wsprintfW(buf, L"Hozirgi klaviatura: 0x%04X. Tilni almashtirish: Win + Space", langId);

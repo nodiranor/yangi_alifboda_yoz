@@ -9,6 +9,24 @@ static bool IsModifierVk(DWORD vk) {
 
 static bool KeyHeld(int vk) { return (GetAsyncKeyState(vk) & 0x8000) != 0; }
 
+// Cyrillic layout: turn the Cyrillic letter this key produces into its new Latin form.
+// Returns true when the key was replaced and must not reach the application.
+static bool TransliterateKey(const KBDLLHOOKSTRUCT *k, HKL layout) {
+  const bool capsLockOn = (GetKeyState(VK_CAPITAL) & 0x0001) != 0;
+  const wchar_t cyr = CyrillicCharForKey(k->vkCode, k->scanCode, IsCapsActive(), layout);
+  if (cyr) {
+    const bool allCaps = capsLockOn && !KeyHeld(VK_SHIFT);
+    wchar_t text[4];
+    const int n = TranslitLetter(&g_translit, cyr, allCaps, text);
+    if (n >= 0) {
+      if (n > 0) SendBackspaceAndChars(0, text);
+      return true;
+    }
+  }
+  TranslitReset(&g_translit);  // space, punctuation, arrows and so on end the word
+  return false;
+}
+
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
   if (nCode != HC_ACTION || g_bSendingInput || !g_bEnabled)
     return CallNextHookEx(g_hHook, nCode, wParam, lParam);
@@ -29,17 +47,36 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
   if (profile == AP_NONE)
     return CallNextHookEx(g_hHook, nCode, wParam, lParam);
 
+  // Switching between the Latin and Cyrillic layouts starts both converters fresh.
+  static ActiveProfile lastProfile = AP_NONE;
+  if (profile != lastProfile) {
+    lastProfile = profile;
+    EngineReset(&g_engine);
+    TranslitReset(&g_translit);
+  }
+
   const DWORD vk = k->vkCode;
+  if (IsModifierVk(vk))
+    return CallNextHookEx(g_hHook, nCode, wParam, lParam);
+
+  const bool combo = (wParam == WM_SYSKEYDOWN || KeyHeld(VK_CONTROL) || KeyHeld(VK_MENU) || KeyHeld(VK_LWIN) || KeyHeld(VK_RWIN));
+
+  if (profile == AP_CYRILLIC) {
+    if (combo) {
+      TranslitReset(&g_translit);
+    } else if (vk == VK_BACK) {
+      TranslitBackspace(&g_translit);
+    } else if (TransliterateKey(k, layout)) {
+      return 1;
+    }
+    return CallNextHookEx(g_hHook, nCode, wParam, lParam);
+  }
+
+  // Latin layout: the double-tap engine.
   EngineKeyKind kind;
   wchar_t ch = 0;
-  if (IsModifierVk(vk)) {
-    kind = EK_MODIFIER;
-  } else if (wParam == WM_SYSKEYDOWN || KeyHeld(VK_CONTROL) || KeyHeld(VK_MENU) || KeyHeld(VK_LWIN) || KeyHeld(VK_RWIN)) {
+  if (combo) {
     kind = EK_COMBO;
-  } else if (profile == AP_CYRILLIC) {
-    // Ask Windows which letter this key produces on the active layout.
-    ch = CyrillicCharForKey(vk, k->scanCode, IsCapsActive(), layout);
-    kind = ch ? EK_LETTER : EK_OTHER;
   } else if (vk >= 'A' && vk <= 'Z') {
     kind = EK_LETTER;
     ch = IsCapsActive() ? (wchar_t)vk : (wchar_t)(vk + 32);
@@ -49,10 +86,9 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     kind = EK_OTHER;
   }
 
-  EngineSetProfile(&g_engine, profile == AP_CYRILLIC ? EP_CYRILLIC : EP_LATIN);
-  if (kind != EK_MODIFIER) HidePill();
+  HidePill();
 
-  if (profile == AP_LATIN && g_bInstantSingleC && kind == EK_LETTER && (ch == L'c' || ch == L'C')) {
+  if (g_bInstantSingleC && kind == EK_LETTER && (ch == L'c' || ch == L'C')) {
     EngineReset(&g_engine);
     SendBackspaceAndChars(0, ch == L'C' ? L"Ç" : L"ç");
     return 1;

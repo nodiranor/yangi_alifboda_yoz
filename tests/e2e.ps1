@@ -25,6 +25,8 @@ public static class K {
   [DllImport("user32.dll")] public static extern IntPtr GetKeyboardLayout(uint tid);
   [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
   [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
+  [DllImport("user32.dll")] public static extern uint MapVirtualKeyEx(uint code, uint type, IntPtr hkl);
+  [DllImport("user32.dll")] public static extern int ToUnicodeEx(uint vk, uint scan, byte[] state, [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder buf, int n, uint flags, IntPtr hkl);
 }
 "@
 
@@ -121,63 +123,120 @@ $hidden = -not [K]::IsWindowVisible($pill)
 "{0,-6} coach pill shown after 'sh': {1}, hidden after next key: {2}" -f $(if ($shown -and $hidden) { 'ok' } else { 'FAIL' }), $shown, $hidden
 if (-not ($shown -and $hidden)) { $fail++ }
 
-# Cyrillic profile on the Russian layout. The dashboard's keyboard layout is switched to Russian
-# for this part and always switched back.
+# Cyrillic to Latin on the Russian and Uzbek (Cyrillic) layouts. The dashboard's keyboard layout
+# is switched for this part and always switched back, and Caps Lock is left as it was.
 function Cyr([int[]]$codes) { return (($codes | ForEach-Object { [string][char]$_ }) -join '') }
-$ruKeys = @{}
-$ruKeys[(Cyr 0x0443)] = 0x45   # у  (E key)
-$ruKeys[(Cyr 0x043A)] = 0x52   # к  (R key)
-$ruKeys[(Cyr 0x0433)] = 0x55   # г  (U key)
-$ruKeys[(Cyr 0x0445)] = 0xDB   # х  ([ key)
-$ruKeys[(Cyr 0x0438)] = 0x42   # и  (B key)
-$ruKeys[(Cyr 0x0437)] = 0x50   # з  (P key)
-$ruKeys[(Cyr 0x0431)] = 0xBC   # б  (, key)
-$ruKeys[(Cyr 0x0435)] = 0x54   # е  (T key)
+function Show([string]$s) { return (($s.ToCharArray() | ForEach-Object { if ([int]$_ -lt 128) { [string]$_ } else { '\u{0:X4}' -f [int]$_ } }) -join '') }
 
-function TypeRu([string]$text) {
+# Which key (and Shift state) produces each character on a layout, asked from Windows itself.
+function Build-KeyMap($hkl) {
+  $map = New-Object 'System.Collections.Generic.Dictionary[string,object]'
+  foreach ($vk in 0x30..0xDF) {
+    foreach ($shift in $false, $true) {
+      $state = New-Object byte[] 256
+      if ($shift) { $state[0x10] = 0x80 }
+      $sb = New-Object System.Text.StringBuilder 4
+      $scan = [K]::MapVirtualKeyEx($vk, 0, $hkl)
+      if ([K]::ToUnicodeEx($vk, $scan, $state, $sb, 4, 0, $hkl) -eq 1) {
+        $ch = [string]$sb[0]
+        if (-not $map.ContainsKey($ch)) { $map[$ch] = @($vk, $shift) }
+      }
+    }
+  }
+  return $map
+}
+
+# Text: Cyrillic letters, ' ' space, '<' Backspace, '|' 600 ms pause.
+function TypeCyr([string]$text, $map) {
   foreach ($c in $text.ToCharArray()) {
-    if ($c -eq '|') { Start-Sleep -Milliseconds 600; continue }
-    Tap ([byte]$ruKeys[[string][char]::ToLower($c)]) ([char]::IsUpper($c))
+    if ($c -eq ' ') { Tap 0x20 $false }
+    elseif ($c -eq '<') { Tap 0x08 $false }
+    elseif ($c -eq '|') { Start-Sleep -Milliseconds 600 }
+    else { $e = $map[[string]$c]; Tap ([byte]$e[0]) ([bool]$e[1]) }
   }
   Start-Sleep -Milliseconds 120
 }
-function Show([string]$s) { return (($s.ToCharArray() | ForEach-Object { if ([int]$_ -lt 128) { [string]$_ } else { '\u{0:X4}' -f [int]$_ } }) -join '') }
+
+function Run-CyrCases($cases, $map, [string]$label) {
+  foreach ($case in $cases) {
+    $missing = $case[0].ToCharArray() | Where-Object { $_ -notin ' ', '<', '|' -and -not $map.ContainsKey([string]$_) }
+    if ($missing) { "{0,-6} {1} {2}: key not found on this layout, skipped" -f 'skip', $label, (Show $case[0]); continue }
+    ClearEdit
+    Tap 0x7C $false
+    TypeCyr $case[0] $map
+    $got = ReadEdit
+    $ok = ($got -ceq $case[1])
+    if (-not $ok) { $script:fail++ }
+    "{0,-6} {1} {2,-22} -> {3,-18} expected {4}" -f $(if ($ok) { 'ok' } else { 'FAIL' }), $label, (Show $case[0]), (Show $got), (Show $case[1])
+  }
+}
+
+$OU = [string][char]0x00D6
 
 $procId = [uint32]0
 $tid = [K]::GetWindowThreadProcessId($dash, [ref]$procId)
 $origLayout = [K]::GetKeyboardLayout($tid)
-$ruLayout = [K]::LoadKeyboardLayout("00000419", 0)
+$capsWasOn = (([K]::GetKeyState(0x14) -band 1) -ne 0)
 try {
-  [void][K]::PostMessage($dash, 0x800A, [IntPtr]::Zero, $ruLayout)   # test-only message: switch the dashboard's layout
-  Start-Sleep -Milliseconds 500
-  $langNow = [int]([K]::GetKeyboardLayout($tid).ToInt64() -band 0xFFFF)
-  if ($langNow -ne 0x0419) {
-    Write-Host ("FAIL   could not switch the dashboard to the Russian layout (now 0x{0:X4})" -f $langNow); $fail++
-  } else {
-    $cyrCases = @(
-      @((Cyr 0x0443,0x0443),                 (Cyr 0x045E)),                       # уу   -> ў
-      @((Cyr 0x0423,0x0423),                 (Cyr 0x040E)),                       # УУ   -> Ў
-      @((Cyr 0x0443,0x0443,0x0443),          (Cyr 0x0443,0x0443)),                # ууу  -> уу
-      @((Cyr 0x043A,0x043A),                 (Cyr 0x049B)),                       # кк   -> қ
-      @((Cyr 0x041A,0x041A),                 (Cyr 0x049A)),                       # КК   -> Қ
-      @((Cyr 0x0433,0x0433),                 (Cyr 0x0493)),                       # гг   -> ғ
-      @((Cyr 0x0445,0x0445),                 (Cyr 0x04B3)),                       # хх   -> ҳ
-      @((Cyr 0x0443,0x0443,0x0437,0x0431,0x0435,0x043A), (Cyr 0x045E,0x0437,0x0431,0x0435,0x043A)),  # уузбек -> ўзбек
-      @((Cyr 0x0438,0x043A,0x043A,0x043A,0x0438),        (Cyr 0x0438,0x043A,0x043A,0x0438)),         # иккки -> икки
-      @(((Cyr 0x0443) + '|' + (Cyr 0x0443)), (Cyr 0x0443,0x0443))                                        # у|у   -> уу
+  foreach ($layoutCase in @(@("00000419", "RU"), @("00000843", "UZ"))) {
+    $hkl = [K]::LoadKeyboardLayout($layoutCase[0], 0)
+    $label = $layoutCase[1]
+    if ($hkl -eq [IntPtr]::Zero) { "skip   $label layout is not available"; continue }
+    [void][K]::PostMessage($dash, 0x800A, [IntPtr]::Zero, $hkl)   # test-only message: switch the dashboard's layout
+    Start-Sleep -Milliseconds 500
+    $langNow = [int]([K]::GetKeyboardLayout($tid).ToInt64() -band 0xFFFF)
+    $langWant = [Convert]::ToInt32($layoutCase[0], 16)
+    if ($langNow -ne $langWant) { Write-Host ("FAIL   could not switch the dashboard to layout {0} (now 0x{1:X4})" -f $layoutCase[0], $langNow); $fail++; continue }
+    $map = Build-KeyMap $hkl
+
+    $words = @(
+      @((Cyr 0x0447,0x043E,0x0439),                                   "${C}oy"),                # чой
+      @((Cyr 0x0448,0x0430,0x0445,0x0430,0x0440),                     "${S}axar"),              # шахар
+      @((Cyr 0x0428,0x0430,0x0445,0x0430,0x0440),                     "${SU}axar"),             # Шахар
+      @((Cyr 0x044E,0x0440,0x0430,0x043A),                            "yurak"),                 # юрак
+      @((Cyr 0x0415,0x0432,0x0440,0x043E,0x043F,0x0430),              "Yevropa"),               # Европа
+      @((Cyr 0x043F,0x043E,0x0435,0x0437,0x0434),                     "poyezd"),                # поезд
+      @((Cyr 0x0440,0x043E,0x0441,0x0441,0x0438,0x044F),              "rossiya"),               # россия
+      @((Cyr 0x044D,0x0448,0x0438,0x043A),                            "e${S}ik"),               # эшик
+      @((Cyr 0x0431,0x0435,0x0020,0x0435),                            "be ye"),                 # бе е
+      @((Cyr 0x0431,0x0435,0x003C,0x0435),                            "be")                     # бе<е  (Backspace)
     )
-    foreach ($case in $cyrCases) {
-      ClearEdit
-      Tap 0x7C $false
-      TypeRu $case[0]
+    Run-CyrCases $words $map $label
+
+    if ($label -eq "UZ") {
+      $uzWords = @(
+        @((Cyr 0x0448,0x0430,0x04B3,0x0430,0x0440),                   "${S}ahar"),              # шаҳар
+        @((Cyr 0x040E,0x0437,0x0431,0x0435,0x043A),                   "${OU}zbek"),             # Ўзбек
+        @((Cyr 0x0493,0x0430,0x043B,0x0430,0x0431,0x0430),            "${G}alaba"),             # ғалаба
+        @((Cyr 0x049B,0x0430,0x043B,0x0430,0x043C),                   "qalam"),                 # қалам
+        @((Cyr 0x04B3,0x0430,0x0432,0x043E),                          "havo")                   # ҳаво
+      )
+      Run-CyrCases $uzWords $map $label
+    }
+
+    if ($label -eq "RU") {
+      # Caps Lock typing capitals gives full capitals for the two-letter results.
+      if (-not $capsWasOn) { Tap 0x14 $false }
+      Run-CyrCases @(
+        @((Cyr 0x044E,0x043B,0x0434,0x0443,0x0437),                   "YULDUZ"),                # юлдуз
+        @((Cyr 0x0448,0x0430,0x0445,0x0430,0x0440),                   "${SU}AXAR")              # шахар
+      ) $map $label
+      if (-not $capsWasOn) { Tap 0x14 $false }
+
+      # Punctuation is not converted: the '.' key on the Russian layout types a dot.
+      ClearEdit; Tap 0x7C $false
+      TypeCyr (Cyr 0x0430) $map
+      Tap 0xBF $false
+      Start-Sleep -Milliseconds 120
       $got = ReadEdit
-      $ok = ($got -ceq $case[1])
+      $ok = ($got -ceq "a.")
       if (-not $ok) { $fail++ }
-      "{0,-6} RU {1,-24} -> {2,-20} expected {3}" -f $(if ($ok) { 'ok' } else { 'FAIL' }), (Show $case[0]), (Show $got), (Show $case[1])
+      "{0,-6} {1} letter then the dot key        -> {2,-18} expected a." -f $(if ($ok) { 'ok' } else { 'FAIL' }), $label, (Show $got)
     }
   }
 } finally {
   [void][K]::PostMessage($dash, 0x800A, [IntPtr]::Zero, $origLayout)
+  if ((([K]::GetKeyState(0x14) -band 1) -ne 0) -ne $capsWasOn) { Tap 0x14 $false }
   Start-Sleep -Milliseconds 300
 }
 

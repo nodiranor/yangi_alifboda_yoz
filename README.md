@@ -2,9 +2,9 @@
 
 ![YAY oynasi / YAY window](docs/dashboard.png)
 
-**YAY** o'zbek lotin alifbosining yangi harflarini (ş, ç, ö, ğ) oddiy klaviaturada yozish uchun kichik Windows dasturi. U tizim patnisida ishlaydi va faqat O'zbek (lotin) yoki O'zbek (kirill) klaviaturasi tanlanganda harflarni almashtiradi (Win + Space). Ingliz klaviaturasiga tegmaydi. Rus klaviaturasiga faqat sozlamada yoqsangiz tegadi.
+**YAY** o'zbek lotin alifbosining yangi harflarini (ş, ç, ö, ğ) oddiy klaviaturada yozish uchun kichik Windows dasturi. Kirill klaviaturaga o'rganib qolganlar uchun esa kirillda yozganini yangi lotin alifbosiga o'giradi. U tizim patnisida ishlaydi va faqat O'zbek (lotin) yoki O'zbek (kirill) klaviaturasi tanlanganda ishlaydi (Win + Space). Ingliz klaviaturasiga tegmaydi. Rus klaviaturasiga faqat sozlamada yoqsangiz tegadi.
 
-**YAY** is a small Windows program for typing the new Uzbek Latin letters (ş, ç, ö, ğ) on a regular keyboard. It runs in the tray and only acts while the Uzbek (Latin) or Uzbek (Cyrillic) keyboard layout is selected (Win + Space). The English layout is left alone, and the Russian layout is only used if you turn it on in the settings.
+**YAY** is a small Windows program for typing the new Uzbek Latin letters (ş, ç, ö, ğ) on a regular keyboard. For people who are used to a Cyrillic keyboard, it also converts what they type in Cyrillic into the new Uzbek Latin alphabet. It runs in the tray and only acts while the Uzbek (Latin) or Uzbek (Cyrillic) keyboard layout is selected (Win + Space). The English layout is left alone, and the Russian layout is only used if you turn it on in the settings.
 
 Homiy / Sponsor: [t.me/juraboshibot](https://t.me/juraboshibot)
 
@@ -25,20 +25,27 @@ Homiy / Sponsor: [t.me/juraboshibot](https://t.me/juraboshibot)
 
 Tap the same letter twice quickly to get the new letter: `ss` → ş. If you need the plain double letter (*Rossiya*, *issiq*), tap a third time: `sss` → `ss`. Further taps stay plain: `ssss` → `sss`. "Quickly" means about 0.35 seconds. The legacy forms (`sh`, `ch`, `o'`, `g'`) have no time limit. Enter, Tab and Escape are never touched. For words with ş followed by s (*işsiz*, *tuşsa*), type `sh` + `s`, or pause briefly before the last `s`.
 
-### Kirill / Cyrillic
+### Kirilldan lotinga / Cyrillic to Latin
 
-O'zbek kirill alifbosining ў, қ, ғ, ҳ harflari rus klaviaturasida yo'q. YAY ularni xuddi shu usulda beradi. Bu O'zbek (kirill) klaviaturasi tanlanganda o'zi ishlaydi. Rus (RU) klaviaturasida esa dastur oynasida "Rus (RU) klaviaturasida ham ishlash" belgilansa ishlaydi, chunki rus tilida yozganda ham ishlatiladi.
+Kirill klaviaturaga o'rganganlar uchun: O'zbek (kirill) klaviaturasi tanlansa, kirillda yozganingiz yangi lotin alifbosiga o'giriladi. Tugmalar odatdagidek, faqat ekranda lotin chiqadi. Rus (RU) klaviaturasida bu faqat dastur oynasida "Rus (RU) klaviaturasida ham o'girish" belgilansa ishlaydi, chunki RU da rus tilida ham yozasiz. Belgilangan bo'lsa, rus matni ham lotinga o'giriladi: rus tilida yozish uchun belgini olib tashlang yoki tray belgisini bosib YAY ni to'xtating.
 
-| Harf / Letter | Tez usul / Fast | Oddiy ikki harf / Plain double |
-| :---: | :---: | :---: |
-| ў Ў | `уу` `УУ` | `ууу` → `уу` |
-| қ Қ | `кк` `КК` | `ккк` → `кк` |
-| ғ Ғ | `гг` `ГГ` | `ггг` → `гг` |
-| ҳ Ҳ | `хх` `ХХ` | `ххх` → `хх` |
+| Kirill | Lotin | Misol |
+| :---: | :---: | :--- |
+| ш Ш | ş Ş | шаҳар → şahar |
+| ч Ч | ç Ç | чой → çoy |
+| ў Ў | ö Ö | Ўзбекистон → Özbekiston |
+| ғ Ғ | ğ Ğ | ғалаба → ğalaba |
+| қ ҳ х | q h x | қалам → qalam, ҳаво → havo, яхши → yaxşi |
+| ё ю я | yo yu ya | ёмон → yomon, юрак → yurak |
+| е | ye so'z boshida va unlidan keyin, boshqa joyda e | Европа → Yevropa, беш → beş |
+| э | e | эшик → eşik |
+| ц щ ы | ts şç i | цирк → tsirk |
+| ъ | ʼ | маъно → maʼno |
+| ь | yozilmaydi | сентябрь → sentyabr |
 
-Qoidalar lotin bilan bir xil. Eslatma: *икки* so'zini `иккки` deb yozing (`кк` қ ga aylanadi). Rus (RU) da yoqilgan bo'lsa, rus so'zlaridagi `кк`, `уу` (*аккорд*, *вакуум*) ham almashadi, ularni ham uch marta bosib yozing.
+Shift bilan bosilgan ё, ю, я katta harf bilan boshlanadi (*Юлдуз* → *Yulduz*). Caps Lock yoqilgan bo'lsa to'liq katta harf chiqadi (*ЮЛДУЗ* → *YULDUZ*). ў, қ, ғ, ҳ tugmalari faqat O'zbek (kirill) klaviaturasida bor.
 
-The Cyrillic Uzbek letters ў, қ, ғ, ҳ are not on a Russian keyboard. YAY gives them the same way: double tap, triple tap to get the plain letters. It is active on its own while the Uzbek (Cyrillic) layout is selected. On the Russian (RU) layout it is active only if you tick "Rus (RU) klaviaturasida ham ishlash" in the program window, because you may also use that layout to write real Russian. With it on, Russian words with `кк` or `уу` (*аккорд*, *вакуум*) are converted too, and you tap a third time to undo. Type *икки* as `иккки`.
+If you are used to a Cyrillic keyboard: while the Uzbek (Cyrillic) layout is selected, what you type in Cyrillic comes out in the new Uzbek Latin alphabet. The keys are the same, only the screen shows Latin. On the Russian (RU) layout this works only if you tick "Rus (RU) klaviaturasida ham o'girish" in the program window, because you may also use RU to write real Russian. With it ticked, Russian text is converted too: to write Russian, untick it or click the tray icon to pause YAY. The table above shows the mapping. *е* becomes *ye* at the start of a word and after a vowel, and *e* elsewhere. Shift gives *Yu*, Caps Lock gives *YU*. The keys for ў, қ, ғ, ҳ exist only on the Uzbek (Cyrillic) layout.
 
 ## O'rnatish / Install
 

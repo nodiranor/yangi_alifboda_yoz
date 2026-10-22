@@ -24,6 +24,7 @@
 #include "../res/resource.h"
 #include "engine.h"
 #include "keymap.h"
+#include "translit.h"
 
 // Private window messages. WM_USER+n is reserved by the dialog manager (DM_SETDEFID), so use WM_APP.
 #define WM_TRAYICON            (WM_APP + 1)
@@ -54,10 +55,11 @@ extern bool        g_bEnabled;
 extern bool        g_bOnlyUzbekLayout;
 extern bool        g_bInstantSingleC;
 extern bool        g_bShowTips;
-extern bool        g_bCyrillicOnRussian;  // also act on the Russian layout (Cyrillic profile)
+extern bool        g_bCyrillicOnRussian;  // also convert Cyrillic to Latin on the Russian layout
 extern bool        g_bSendingInput;
 extern bool        g_bWin7PreloadWritten;
 extern EngineState g_engine;
+extern TranslitState g_translit;
 
 // settings.cpp
 void LoadSettings();
