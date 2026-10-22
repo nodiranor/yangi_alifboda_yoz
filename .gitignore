@@ -1,27 +1,16 @@
-# Build artifacts & objects
-*.o
-*.obj
-*.res
-*.log
-*.tmp
-
-# Visual Studio / MSVC artifacts
-.vs/
-*.sln.docstates
-*.suo
-*.user
-*.pdb
-*.ilk
-
-# VS Code / IDE settings
-.vscode/
-.idea/
-
-# Environment files
-*.env
-
-# Brainstorm companion sessions
-.superpowers/
-
 # Build output
 build/
+/YAY.exe
+/Output/
+*.obj
+*.res
+*.o
+*.pdb
+*.ilk
+*.log
+
+# Editors and tools
+.vs/
+.vscode/
+.idea/
+.codegraph/
