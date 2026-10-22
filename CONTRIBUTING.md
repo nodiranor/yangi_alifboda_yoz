@@ -1,61 +1,27 @@
-# Hissa qo'shish / Contributing to YAY
+# Hissa qo'shish / Contributing
 
-YAY loyihasiga hissa qo'shishni xohlaganingiz uchun tashakkur! Loyiha ochiq kodli bo'lib, har qanday yaxshilanishlar, takliflar va xatoliklar bo'yicha yordamingiz mamnuniyat bilan qabul qilinadi.
+Takliflar va xatoliklar uchun Issue oching. Xatolik haqida yozganda Windows versiyasini, dastur nomini (Word, Chrome, Telegram...) va aynan qaysi tugmalar bosilganini ko'rsating.
 
-Thank you for your interest in contributing to YAY! This project is 100% open-source and welcomes contributions, bug reports, and suggestions.
+Open an issue for bugs and ideas. For a bug, include your Windows version, the application, and the exact keys you pressed.
 
----
+## Build and test
 
-## 🛠 Ishni boshlash / Getting Started
+See [README.md](README.md). In short: `build.cmd` runs the engine tests and builds the exe, `tests\e2e.cmd` types real keys into the program's test box.
 
-### 1. Talablar / Prerequisites
-- **C++ Kompilyator**: Visual Studio 2022 (MSVC) yoki MinGW-w64.
-- **Resurs kompilyatori**: `windres` (MinGW tarkibida).
-- **Inno Setup 6**: O'rnatuvchi paketini (`.exe`) yig'ish uchun.
-- **Python (Pillow)**: Agar `Icon.png` rasmidan yangi `.ico` yaratmoqchi bo'lsangiz.
+## Where things are
 
-### 2. Kodni olish / Clone Repository
-```bash
-git clone https://github.com/nodiranor/yangi_alifboda_yoz.git
-cd yangi_alifboda_yoz
-```
+- `src/engine.cpp`: the typing rules. It has no Win32 calls, so it is tested directly by `tests/test_engine.cpp`.
+- `src/hook.cpp`: turns keyboard events into engine input and sends the replacement.
+- `src/dashboard.cpp`, `src/tray.cpp`, `src/pill.cpp`: the window, the tray icon and the small hint popup.
+- `src/layout.cpp`: keyboard layout detection and adding the Uzbek layout.
+- `res/`: dialog layout, manifest, icons.
 
-### 3. Dasturni kompilyatsiya qilish / Building
-MSVC (Visual Studio 2022):
-```bat
-build.cmd
-```
-Skript testlarni ishga tushiradi, `YAY.exe` ni yig'adi va Inno Setup topilsa o'rnatuvchini yaratadi. Haqiqiy klaviatura bosishlari bilan tekshirish uchun: `tests\e2e.cmd`.
+## Guidelines
 
-MinGW-w64 (sinab ko'rilmagan / not verified):
-```bash
-mkdir -p build
-(cd res && windres yay.rc -O coff -o ../build/yay_res.o)
-g++ -std=c++17 -Os -s -municode -mwindows -static -D_WIN32_WINNT=0x0601 -D_WIN32_IE=0x0800 src/*.cpp build/yay_res.o -o YAY.exe -luser32 -lgdi32 -lshell32 -ladvapi32 -lcomctl32
-```
-
-Qoidalar mantiqi `src/engine.cpp` da, testlari `tests/test_engine.cpp` da. Qoidalarni o'zgartirsangiz, avval test qo'shing.
-
----
-
-## 📐 Kod yozish qoidalari / Code Guidelines
-
-- **Zero-Dependency**: Dastur hech qanday og'ir kutubxonalar (Qt, Electron, .NET runtime) va C runtime ishlatmaydi. Faqat sof va yengil Win32 API ishlatiladi (`printf`, `strlen` o'rniga `wsprintfW`, `lstrlenW` kabilar).
-- **Unicode**: Barcha matnlar va API chaqiruvlari `wchar_t` / `Unicode` (`UTF-16`) formatida bo'lishi shart.
-- **Xavfsizlik va Maxfiylik**: Dastur klaviatura bosilishlarini hech qayerga saqlamaydi, yozmaydi va tarmoqqa yubormaydi. Telemetriya taqiqlangan.
-- **Til izolyatsiyasi**: Boshqa tillarga (`ENG`, `RUS`) va tizim tezkor tugmalariga (`Ctrl+C`, `Ctrl+V`, `Alt+Tab`) ta'sir ko'rsatilmasligi shart.
-
----
-
-## 🐛 Xatoliklar va Takliflar / Issues & Feature Requests
-
-Xatolik haqida xabar berishda quyidagilarni ko'rsatishni unutmang:
-1. Windows versiyasi (Windows 10, Windows 11).
-2. Xatolik kuzatilgan dastur (Word, Chrome, Telegram va h.k.).
-3. Qanday tugmalar bosilganda xatolik yuz bergani.
-
----
-
-## 📄 Litsenziya / License
-
-Loyiha [MIT License](LICENSE) asosida tarqatiladi.
+- Change a typing rule by adding the test case first, then the code.
+- Never intercept Enter, Tab or Escape. That was the problem with the first version.
+- Windows API only. The exe is linked without the C runtime, so use `wsprintfW`, `lstrcpynW` and similar instead of `printf` or `wcscpy`. No STL, no exceptions.
+- Windows 7 must keep working. Load anything newer than Windows 7 with `GetProcAddress`.
+- The window uses standard controls from the dialog resource. No custom drawing.
+- No network access and no logging of typed text.
+- Keep the exe small.

@@ -1,8 +1,5 @@
-# install_uzbek_layout.ps1
-# ==============================================================================
-# YAY - Yangi Alifboda Yoz
-# Windows Til paneliga O'zbekcha (Lotin) tilini qo'shish skripti (Win + Space)
-# ==============================================================================
+# Adds the Uzbek (Latin) language to the current user's language list.
+# Windows 8 and later only. The installer runs this; the program does the same from its window.
 
 try {
     $langs = Get-WinUserLanguageList
@@ -21,6 +18,6 @@ try {
         Set-WinUserLanguageList $langs -Force
     }
 } catch {
-    # Exit gracefully on error
+    # Nothing to do if the language list cannot be changed.
     exit 0
 }

@@ -2,10 +2,8 @@
 setlocal
 cd /d "%~dp0"
 
-rem ---------------------------------------------------------------------------
-rem YAY build: engine tests, resources, YAY.exe (x86, static CRT), installer.
-rem Needs Visual Studio 2022 (Desktop C++ workload). Inno Setup 6 is optional.
-rem ---------------------------------------------------------------------------
+rem Builds YAY.exe (32-bit, linked without the C runtime) and the installer.
+rem Needs Visual Studio 2022 with the C++ desktop workload. Inno Setup 6 is optional.
 
 set "VSDEVCMD="
 for %%E in (Community Professional Enterprise BuildTools) do (

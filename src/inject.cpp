@@ -1,7 +1,7 @@
 #include "app.h"
 
 // Sends `backspaces` Backspace presses followed by `chars` as Unicode key events.
-// g_bSendingInput is only a belt-and-braces guard; injected events also carry LLKHF_INJECTED.
+// g_bSendingInput is a second guard. The main one is the injected-key flag the hook checks.
 void SendBackspaceAndChars(int backspaces, const wchar_t *chars) {
   g_bSendingInput = true;
   INPUT inputs[16] = {0};
