@@ -25,22 +25,22 @@ void UpdateDashboardUI() {
   if (!g_hMainWnd || !IsWindowVisible(g_hMainWnd)) return;
 
   const ActiveProfile profile = g_bEnabled ? GetActiveProfile(NULL) : AP_NONE;
-  const wchar_t *status = !g_bEnabled            ? L"Holat: O'chirilgan (pauza). Yoqish uchun tray belgisini bosing."
-                        : profile == AP_LATIN    ? L"Holat: Faol. UZB (O'zbek lotin) tanlangan, yozishingiz mumkin."
-                        : profile == AP_CYRILLIC ? L"Holat: Faol. Kirillda yozing, yangi lotin alifbosida chiqadi."
-                                                 : L"Holat: Kutish rejimi. Boshqa til tanlangan.";
+  const wchar_t *status = !g_bEnabled            ? L"Holat: Öçirilgan (pauza). Yoqiş uçun tray belgisini bosing."
+                        : profile == AP_LATIN    ? L"Holat: Faol. UZB (Özbek lotin) tanlangan, yozişingiz mumkin."
+                        : profile == AP_CYRILLIC ? L"Holat: Faol. Kirillda yozing, yangi lotin alifbosida çiqadi."
+                                                 : L"Holat: Kutiş rejimi. Boşqa til tanlangan.";
   SetTextIfChanged(g_hMainWnd, IDC_STATUS_TEXT, status);
 
   bool uzInstalled = IsUzbekLayoutInstalled();
   HWND hBtn = GetDlgItem(g_hMainWnd, IDC_BTN_ADD_UZBEK);
   if (uzInstalled) {
-    SetTextIfChanged(g_hMainWnd, IDC_BTN_ADD_UZBEK, L"O'zbek (lotin) tili tizimda mavjud (Win + Space)");
+    SetTextIfChanged(g_hMainWnd, IDC_BTN_ADD_UZBEK, L"Özbek (lotin) tili tizimda mavjud (Win + Space)");
     EnableWindow(hBtn, FALSE);
   } else if (g_bWin7PreloadWritten) {
-    SetTextIfChanged(g_hMainWnd, IDC_BTN_ADD_UZBEK, L"Qayta kirgach UZB tili paydo bo'ladi");
+    SetTextIfChanged(g_hMainWnd, IDC_BTN_ADD_UZBEK, L"Qayta kirgaç UZB tili paydo böladi");
     EnableWindow(hBtn, FALSE);
   } else {
-    SetTextIfChanged(g_hMainWnd, IDC_BTN_ADD_UZBEK, L"O'zbek (lotin) tilini til paneliga qo'shish");
+    SetTextIfChanged(g_hMainWnd, IDC_BTN_ADD_UZBEK, L"Özbek (lotin) tilini til paneliga qöşiş");
     EnableWindow(hBtn, TRUE);
   }
 
@@ -49,25 +49,25 @@ void UpdateDashboardUI() {
   WORD langId = LOWORD((DWORD_PTR)GetKeyboardLayout(tid));
   wchar_t buf[256];
   if (langId == 0x0443) {
-    lstrcpynW(buf, L"Hozirgi klaviatura: UZB (O'zbek lotin). Yangi alifbo faol.", 256);
+    lstrcpynW(buf, L"Hozirgi klaviatura: UZB (Özbek lotin). Yangi alifbo faol.", 256);
   } else if (langId == 0x0843) {
-    lstrcpynW(buf, L"Hozirgi klaviatura: UZB (O'zbek kirill). Kirill harflar lotinga o'giriladi.", 256);
+    lstrcpynW(buf, L"Hozirgi klaviatura: UZB (Özbek kirill). Kirill harflar lotinga ögiriladi.", 256);
   } else if (PRIMARYLANGID(langId) == LANG_ENGLISH) {
-    if (!uzInstalled)             lstrcpynW(buf, L"Hozirgi klaviatura: ENG. UZB tili tizimda yo'q, pastdagi tugmani bosing.", 256);
-    else if (!g_bOnlyUzbekLayout) lstrcpynW(buf, L"Hozirgi klaviatura: ENG. YAY shu tilda ham ishlaydi.", 256);
-    else                          lstrcpynW(buf, L"Hozirgi klaviatura: ENG. UZB tiliga o'tish: Win + Space", 256);
+    if (!uzInstalled)             lstrcpynW(buf, L"Hozirgi klaviatura: ENG. UZB tili tizimda yöq, pastdagi tugmani bosing.", 256);
+    else if (!g_bOnlyUzbekLayout) lstrcpynW(buf, L"Hozirgi klaviatura: ENG. YAY şu tilda ham işlaydi.", 256);
+    else                          lstrcpynW(buf, L"Hozirgi klaviatura: ENG. UZB tiliga ötiş: Win + Space", 256);
   } else if (PRIMARYLANGID(langId) == LANG_RUSSIAN) {
-    if (g_bCyrillicOnRussian) lstrcpynW(buf, L"Hozirgi klaviatura: RUS. Kirill harflar lotinga o'giriladi.", 256);
+    if (g_bCyrillicOnRussian) lstrcpynW(buf, L"Hozirgi klaviatura: RUS. Kirill harflar lotinga ögiriladi.", 256);
     else                      lstrcpynW(buf, L"Hozirgi klaviatura: RUS. Rus tiliga xalaqit bermaydi.", 256);
   } else {
-    wsprintfW(buf, L"Hozirgi klaviatura: 0x%04X. Tilni almashtirish: Win + Space", langId);
+    wsprintfW(buf, L"Hozirgi klaviatura: 0x%04X. Tilni almaştiriş: Win + Space", langId);
   }
   SetTextIfChanged(g_hMainWnd, IDC_LANG_TEXT, buf);
 }
 
 static void OnAddUzbekLayout(HWND hDlg) {
   if (IsWindows8OrGreaterReal()) {
-    SetDlgItemTextW(hDlg, IDC_BTN_ADD_UZBEK, L"O'rnatilmoqda...");
+    SetDlgItemTextW(hDlg, IDC_BTN_ADD_UZBEK, L"Örnatilmoqda...");
     EnableWindow(GetDlgItem(hDlg, IDC_BTN_ADD_UZBEK), FALSE);
     TriggerAddUzbekLayout();
     return;
@@ -75,12 +75,12 @@ static void OnAddUzbekLayout(HWND hDlg) {
   if (AddUzbekPreloadWin7()) {
     g_bWin7PreloadWritten = true;
     MessageBoxW(hDlg,
-                L"O'zbek (lotin) tili qo'shildi.\nTil panelida ko'rinishi uchun tizimdan chiqib (Log off), qayta kiring.",
+                L"Özbek (lotin) tili qöşildi.\nTil panelida körinişi uçun tizimdan çiqib (Log off), qayta kiring.",
                 APP_NAME, MB_OK | MB_ICONINFORMATION);
   } else {
     MessageBoxW(hDlg,
-                L"Tilni avtomatik qo'shib bo'lmadi.\nControl Panel > Region and Language > Keyboards and Languages "
-                L"orqali \"Uzbek (Latin)\" tilini qo'shing.",
+                L"Tilni avtomatik qöşib bölmadi.\nControl Panel > Region and Language > Keyboards and Languages "
+                L"orqali \"Uzbek (Latin)\" tilini qöşing.",
                 APP_NAME, MB_OK | MB_ICONWARNING);
   }
   UpdateDashboardUI();

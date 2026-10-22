@@ -32,9 +32,9 @@ Name: "uzbek"; MessagesFile: "compiler:Default.isl,Uzbek.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Ish stolida yorliq yaratish / Создать ярлык на рабочем столе"; GroupDescription: "Qo'shimcha amallar / Дополнительно:"
-Name: "startup"; Description: "Windows bilan birga avtomatik ishga tushirish / Автозапуск вместе с Windows"; GroupDescription: "Qo'shimcha sozlamalar / Дополнительные параметры:"
-Name: "addinputmethod"; Description: "Windows Til paneliga O'zbek Lotin tilini qo'shish (Win+Space) / Добавить Узбекский (Латиница) в языковую панель"; GroupDescription: "Qo'shimcha sozlamalar / Дополнительные параметры:"; MinVersion: 6.2
+Name: "desktopicon"; Description: "Iş stolida yorliq yaratiş / Создать ярлык на рабочем столе"; GroupDescription: "Qöşimça amallar / Дополнительно:"
+Name: "startup"; Description: "Windows bilan birga avtomatik işga tuşiriş / Автозапуск вместе с Windows"; GroupDescription: "Qöşimça sozlamalar / Дополнительные параметры:"
+Name: "addinputmethod"; Description: "Windows Til paneliga Özbek Lotin tilini qöşiş (Win+Space) / Добавить Узбекский (Латиница) в языковую панель"; GroupDescription: "Qöşimça sozlamalar / Дополнительные параметры:"; MinVersion: 6.2
 
 [Files]
 Source: "{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
@@ -50,7 +50,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 [Run]
 ; Windows 8+ only: the cmdlet does not exist on Windows 7. The app offers its own Windows 7 path.
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ""{app}\install_uzbek_layout.ps1"""; Flags: runhidden waituntilterminated; Tasks: addinputmethod; MinVersion: 6.2
-Filename: "{app}\{#MyAppExeName}"; Description: "Dasturni hozir ishga tushirish / Запустить программу сейчас"; Flags: nowait postinstall
+Filename: "{app}\{#MyAppExeName}"; Description: "Dasturni hozir işga tuşiriş / Запустить программу сейчас"; Flags: nowait postinstall
 
 [UninstallRun]
 Filename: "taskkill.exe"; Parameters: "/F /IM {#MyAppExeName}"; Flags: runhidden; RunOnceId: "StopYAY"

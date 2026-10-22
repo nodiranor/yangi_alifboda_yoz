@@ -46,25 +46,25 @@ CAPTION "YAY - Yangi Alifboda Yoz"
 FONT 9, "Segoe UI", 400, 0, 0x0
 BEGIN
     LTEXT           "Holat: aniqlanmoqda...", IDC_STATUS_TEXT, 7, 7, 306, 10
-    LTEXT           "Tilni almashtirish: Win + Space", IDC_LANG_TEXT, 7, 19, 306, 10
-    PUSHBUTTON      "O'zbek (lotin) tilini til paneliga qo'shish", IDC_BTN_ADD_UZBEK, 7, 33, 220, 14
+    LTEXT           "Tilni almaştiriş: Win + Space", IDC_LANG_TEXT, 7, 19, 306, 10
+    PUSHBUTTON      "Özbek (lotin) tilini til paneliga qöşiş", IDC_BTN_ADD_UZBEK, 7, 33, 220, 14
 
     GROUPBOX        "Qoidalar", IDC_GRP_RULES, 7, 54, 306, 92
     LTEXT           "ss → ş          oo → ö          gg → ğ          cc → ç", IDC_RULE1, 15, 67, 290, 10
-    LTEXT           "Uch marta bossangiz asl harflar qoladi: sss → ss, ooo → oo", IDC_RULE2, 15, 79, 290, 10
-    LTEXT           "Eski usul ham ishlaydi: sh → ş, ch → ç, o' → ö, g' → ğ", IDC_RULE3, 15, 91, 290, 10
-    LTEXT           "Kirill klaviaturada yozsangiz lotin chiqadi: ш → ş, ч → ç, ў → ö, ғ → ğ, қ → q, ҳ → h, ё → yo, ю → yu, я → ya.", IDC_RULE4, 15, 103, 290, 20
-    LTEXT           "Sinab ko'ring:", IDC_TEST_LABEL, 15, 129, 48, 10
+    LTEXT           "Uç marta bossangiz asl harflar qoladi: sss → ss, ooo → oo", IDC_RULE2, 15, 79, 290, 10
+    LTEXT           "Eski usul ham işlaydi: sh → ş, ch → ç, o' → ö, g' → ğ", IDC_RULE3, 15, 91, 290, 10
+    LTEXT           "Kirill klaviaturada yozsangiz lotin çiqadi: ш → ş, ч → ç, ў → ö, ғ → ğ, қ → q, ҳ → h, ё → yo, ю → yu, я → ya.", IDC_RULE4, 15, 103, 290, 20
+    LTEXT           "Sinab köring:", IDC_TEST_LABEL, 15, 129, 48, 10
     EDITTEXT        IDC_EDIT_TEST, 66, 126, 239, 14, ES_AUTOHSCROLL
 
     GROUPBOX        "Sozlamalar", IDC_GRP_SETTINGS, 7, 153, 306, 86
-    AUTOCHECKBOX    "Faqat O'zbek (UZB) tili tanlanganda ishlash", IDC_CHK_ONLY_UZ, 15, 166, 290, 10
-    AUTOCHECKBOX    "Bitta 'c' harfini darhol 'ç' qilib yozish", IDC_CHK_SINGLE_C, 15, 180, 290, 10
-    AUTOCHECKBOX    "Eski usulda yozganda maslahat ko'rsatish", IDC_CHK_TIPS, 15, 194, 290, 10
-    AUTOCHECKBOX    "Rus (RU) klaviaturasida ham o'girish (rus matni ham lotin bo'ladi)", IDC_CHK_CYR_RU, 15, 208, 290, 10
-    AUTOCHECKBOX    "Windows bilan birga ishga tushirish", IDC_CHK_STARTUP, 15, 222, 290, 10
+    AUTOCHECKBOX    "Faqat Özbek (UZB) tili tanlanganda işlaş", IDC_CHK_ONLY_UZ, 15, 166, 290, 10
+    AUTOCHECKBOX    "Bitta 'c' harfini darhol 'ç' qilib yoziş", IDC_CHK_SINGLE_C, 15, 180, 290, 10
+    AUTOCHECKBOX    "Eski usulda yozganda maslahat körsatiş", IDC_CHK_TIPS, 15, 194, 290, 10
+    AUTOCHECKBOX    "Rus (RU) klaviaturasida ham ögiriş (rus matni ham lotin böladi)", IDC_CHK_CYR_RU, 15, 208, 290, 10
+    AUTOCHECKBOX    "Windows bilan birga işga tuşiriş", IDC_CHK_STARTUP, 15, 222, 290, 10
 
     CONTROL         "Homiy: <a href=""https://t.me/juraboshibot"">t.me/juraboshibot</a>", IDC_SPONSOR, "SysLink", WS_TABSTOP, 7, 250, 160, 10
-    PUSHBUTTON      "Trayga &yashirish", IDC_BTN_HIDE, 191, 247, 72, 14
-    PUSHBUTTON      "&Chiqish", IDC_BTN_EXIT, 267, 247, 46, 14
+    PUSHBUTTON      "&Yaşiriş", IDC_BTN_HIDE, 191, 247, 72, 14
+    PUSHBUTTON      "Çi&qiş", IDC_BTN_EXIT, 267, 247, 46, 14
 END

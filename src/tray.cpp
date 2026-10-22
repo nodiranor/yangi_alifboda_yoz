@@ -20,9 +20,9 @@ void TrayRemove() {
 void UpdateTrayStatus() {
   bool activeNow = g_bEnabled && IsUzbekInputMethodActive();
   HICON icon = activeNow ? g_hIconActive : g_hIconPaused;
-  const wchar_t *tip = !g_bEnabled ? L"YAY: O'chirilgan (pauza)"
+  const wchar_t *tip = !g_bEnabled ? L"YAY: Öçirilgan (pauza)"
                      : activeNow   ? L"YAY: Faol (UZB tanlangan)"
-                                   : L"YAY: Kutish rejimi (boshqa til)";
+                                   : L"YAY: Kutiş rejimi (boşqa til)";
   if (g_nid.hIcon != icon || lstrcmpW(g_nid.szTip, tip) != 0) {
     g_nid.hIcon = icon;
     lstrcpynW(g_nid.szTip, tip, 128);
@@ -35,13 +35,13 @@ void UpdateTrayStatus() {
 
 void TrayShowMenu(HWND hWnd) {
   HMENU hMenu = CreatePopupMenu();
-  AppendMenuW(hMenu, MF_STRING, ID_TRAY_OPEN_DASHBOARD, L"YAY oynasini ochish");
+  AppendMenuW(hMenu, MF_STRING, ID_TRAY_OPEN_DASHBOARD, L"YAY oynasini oçiş");
   AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
   AppendMenuW(hMenu, MF_STRING | (g_bEnabled ? MF_CHECKED : 0), ID_TRAY_ENABLE, L"Faol (yoqilgan)");
-  AppendMenuW(hMenu, MF_STRING | (g_bOnlyUzbekLayout ? MF_CHECKED : 0), ID_TRAY_ONLY_UZBEK, L"Faqat UZB tilida ishlash");
+  AppendMenuW(hMenu, MF_STRING | (g_bOnlyUzbekLayout ? MF_CHECKED : 0), ID_TRAY_ONLY_UZBEK, L"Faqat UZB tilida işlaş");
   AppendMenuW(hMenu, MF_STRING | (g_bInstantSingleC ? MF_CHECKED : 0), ID_TRAY_SINGLE_C, L"Bitta 'c' → 'ç' rejimi");
   AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
-  AppendMenuW(hMenu, MF_STRING, ID_TRAY_EXIT, L"Chiqish");
+  AppendMenuW(hMenu, MF_STRING, ID_TRAY_EXIT, L"Çiqiş");
 
   POINT pt;
   GetCursorPos(&pt);

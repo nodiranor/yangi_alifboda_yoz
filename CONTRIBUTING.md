@@ -1,6 +1,6 @@
-# Hissa qo'shish / Contributing
+# Hissa qöşiş / Contributing
 
-Takliflar va xatoliklar uchun Issue oching. Xatolik haqida yozganda Windows versiyasini, dastur nomini (Word, Chrome, Telegram...) va aynan qaysi tugmalar bosilganini ko'rsating.
+Takliflar va xatoliklar uçun Issue oçing. Xatolik haqida yozganda Windows versiyasini, dastur nomini (Word, Chrome, Telegram...) va aynan qaysi tugmalar bosilganini körsating.
 
 Open an issue for bugs and ideas. For a bug, include your Windows version, the application, and the exact keys you pressed.
 

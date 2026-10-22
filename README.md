@@ -21,13 +21,13 @@ Homiy / Sponsor: [t.me/juraboshibot](https://t.me/juraboshibot)
 - "Tez" taxminan 0,35 soniya. Eski usullar (`sh`, `ch`, `o'`, `g'`) tezlikka boğliq emas.
 - Enter, Tab va Escape tugmalariga heç qaçon tegilmaydi.
 - ş dan keyin s keladigan sözlarda (*işsiz*, *tuşsa*) `sh` + `s` yozing yoki ikkinçi `s` dan keyin biroz töxtang.
-- Dastur oynasida "Bitta 'c' harfini darhol 'ç' qilib yozish" sozlamasi bor.
+- Dastur oynasida "Bitta 'c' harfini darhol 'ç' qilib yoziş" sozlamasi bor.
 
 Tap the same letter twice quickly to get the new letter: `ss` → ş. If you need the plain double letter (*Rossiya*, *issiq*), tap a third time: `sss` → `ss`. Further taps stay plain: `ssss` → `sss`. "Quickly" means about 0.35 seconds. The legacy forms (`sh`, `ch`, `o'`, `g'`) have no time limit. Enter, Tab and Escape are never touched. For words with ş followed by s (*işsiz*, *tuşsa*), type `sh` + `s`, or pause briefly before the last `s`.
 
 ### Kirilldan lotinga / Cyrillic to Latin
 
-Kirill klaviaturaga örganganlar uçun: Özbek (kirill) klaviaturasi tanlansa, kirillda yozganingiz yangi lotin alifbosiga ögiriladi. Tugmalar odatdagidek, faqat ekranda lotin çiqadi. Rus (RU) klaviaturasida bu faqat dastur oynasida "Rus (RU) klaviaturasida ham o'girish" belgilansa işlaydi, çunki RU da rus tilida ham yozasiz. Belgilangan bölsa, rus matni ham lotinga ögiriladi: rus tilida yoziş uçun belgini olib taşlang yoki tray belgisini bosib YAY ni töxtating.
+Kirill klaviaturaga örganganlar uçun: Özbek (kirill) klaviaturasi tanlansa, kirillda yozganingiz yangi lotin alifbosiga ögiriladi. Tugmalar odatdagidek, faqat ekranda lotin çiqadi. Rus (RU) klaviaturasida bu faqat dastur oynasida "Rus (RU) klaviaturasida ham ögiriş" belgilansa işlaydi, çunki RU da rus tilida ham yozasiz. Belgilangan bölsa, rus matni ham lotinga ögiriladi: rus tilida yoziş uçun belgini olib taşlang yoki tray belgisini bosib YAY ni töxtating.
 
 | Kirill | Lotin | Misol |
 | :---: | :---: | :--- |
@@ -45,7 +45,7 @@ Kirill klaviaturaga örganganlar uçun: Özbek (kirill) klaviaturasi tanlansa, k
 
 Shift bilan bosilgan ё, ю, я katta harf bilan boşlanadi (*Юлдуз* → *Yulduz*). Caps Lock yoqilgan bölsa töliq katta harf çiqadi (*ЮЛДУЗ* → *YULDUZ*). ў, қ, ғ, ҳ tugmalari faqat Özbek (kirill) klaviaturasida bor.
 
-If you are used to a Cyrillic keyboard: while the Uzbek (Cyrillic) layout is selected, what you type in Cyrillic comes out in the new Uzbek Latin alphabet. The keys are the same, only the screen shows Latin. On the Russian (RU) layout this works only if you tick "Rus (RU) klaviaturasida ham o'girish" in the program window, because you may also use RU to write real Russian. With it ticked, Russian text is converted too: to write Russian, untick it or click the tray icon to pause YAY. The table above shows the mapping. *е* becomes *ye* at the start of a word and after a vowel, and *e* elsewhere. Shift gives *Yu*, Caps Lock gives *YU*. The keys for ў, қ, ғ, ҳ exist only on the Uzbek (Cyrillic) layout.
+If you are used to a Cyrillic keyboard: while the Uzbek (Cyrillic) layout is selected, what you type in Cyrillic comes out in the new Uzbek Latin alphabet. The keys are the same, only the screen shows Latin. On the Russian (RU) layout this works only if you tick "Rus (RU) klaviaturasida ham ögiriş" in the program window, because you may also use RU to write real Russian. With it ticked, Russian text is converted too: to write Russian, untick it or click the tray icon to pause YAY. The table above shows the mapping. *е* becomes *ye* at the start of a word and after a vowel, and *e* elsewhere. Shift gives *Yu*, Caps Lock gives *YU*. The keys for ў, қ, ғ, ҳ exist only on the Uzbek (Cyrillic) layout.
 
 ## Örnatiş / Install
 

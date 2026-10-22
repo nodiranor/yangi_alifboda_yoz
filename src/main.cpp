@@ -80,7 +80,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
   wc.hbrBackground = (HBRUSH)(COLOR_3DFACE + 1);
   wc.lpszClassName = DASHBOARD_CLASS;
   if (!RegisterClassExW(&wc)) {
-    MessageBoxW(NULL, L"Oyna sinfini ro'yxatdan o'tkazib bo'lmadi.", APP_NAME, MB_ICONERROR);
+    MessageBoxW(NULL, L"Oyna sinfini röyxatdan ötkazib bölmadi.", APP_NAME, MB_ICONERROR);
     return 1;
   }
 
@@ -88,7 +88,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
 
   HWND hDlg = CreateDialogParamW(hInstance, MAKEINTRESOURCEW(IDD_MAIN), NULL, DashboardDlgProc, 0);
   if (!hDlg) {
-    MessageBoxW(NULL, L"Asosiy oynani yaratib bo'lmadi.", APP_NAME, MB_ICONERROR);
+    MessageBoxW(NULL, L"Asosiy oynani yaratib bölmadi.", APP_NAME, MB_ICONERROR);
     return 1;
   }
   g_hMainWnd = hDlg;
