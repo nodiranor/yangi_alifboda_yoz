@@ -1,8 +1,8 @@
 # Hissa qöşiş / Contributing
 
-Takliflar va xatoliklar uçun Issue oçing. Xatolik haqida yozganda Windows versiyasini, dastur nomini (Word, Chrome, Telegram...) va aynan qaysi tugmalar bosilganini körsating.
+Takliflar va xatoliklar uçun Issue oçing. Xatolik haqida yozganda YAY va Windows versiyasini, dastur nomini (Word, Chrome, Telegram...) va aynan qaysi tugmalar bosilganini körsating.
 
-Open an issue for bugs and ideas. For a bug, include your Windows version, the application, and the exact keys you pressed.
+Open an issue for bugs and ideas. For a bug, include the YAY version, your Windows version, the application, and the exact keys you pressed.
 
 ## Build and test
 
