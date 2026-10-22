@@ -20,6 +20,8 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 CloseApplications=force
+SetupIconFile=app.ico
+UninstallDisplayIcon={app}\{#MyAppExeName}
 SourceDir=.
 
 ; Wizard offered in Uzbek and Russian ONLY
@@ -34,6 +36,7 @@ Name: "addinputmethod"; Description: "Windows Til paneliga O'zbek Lotin tilini q
 
 [Files]
 Source: "{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "install_uzbek_layout.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -44,11 +47,11 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "YAY_UzbekKeyboard"; ValueData: """{app}\{#MyAppExeName}"" /tray"; Flags: uninsdeletevalue; Tasks: startup
 
 [Run]
-; Add uz-Latn-UZ to Windows Input Methods silently
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command ""$list = Get-WinUserLanguageList; $found = $false; foreach ($lang in $list) {{ if ($lang.LanguageTag -like 'uz*') {{ $found = $true; break }} }}; if (-not $found) {{ $newLang = New-WinUserLanguageList 'uz-Latn-UZ'; foreach ($nl in $newLang) {{ $list.Add($nl) }}; Set-WinUserLanguageList $list -Force }}"""; Flags: runhidden waituntilterminated; Tasks: addinputmethod
+; Add uz-Latn-UZ to Windows Input Methods silently via dedicated script
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ""{app}\install_uzbek_layout.ps1"""; Flags: runhidden waituntilterminated; Tasks: addinputmethod
 
 ; Launch the app immediately with visible dashboard
-Filename: "{app}\{#MyAppExeName}"; Description: "Dasturni hozir ishga tushirish / Запустить программу сейчас"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "Dasturni hozir ishga tushirish / Запустить программу сейчас"; Flags: nowait postinstall
 
 [UninstallRun]
 ; Cleanly stop the running daemon before uninstalling
@@ -56,3 +59,14 @@ Filename: "taskkill.exe"; Parameters: "/F /IM {#MyAppExeName}"; Flags: runhidden
 
 [UninstallDelete]
 Type: files; Name: "{app}\{#MyAppExeName}"
+Type: files; Name: "{app}\install_uzbek_layout.ps1"
+
+[Code]
+// Force terminate any running YAY.exe instance before copying files
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  ResultCode: Integer;
+begin
+  Exec('taskkill.exe', '/F /IM {#MyAppExeName}', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Result := '';
+end;

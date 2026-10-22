@@ -1,0 +1,21 @@
+# Build artifacts & objects
+*.o
+*.obj
+*.res
+*.log
+*.tmp
+
+# Visual Studio / MSVC artifacts
+.vs/
+*.sln.docstates
+*.suo
+*.user
+*.pdb
+*.ilk
+
+# VS Code / IDE settings
+.vscode/
+.idea/
+
+# Environment files
+*.env
