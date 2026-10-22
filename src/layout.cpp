@@ -1,18 +1,32 @@
+// layout.cpp - keyboard layouts: which one is active, and adding the Uzbek one to Windows.
+//
+// A keyboard layout is identified by an HKL handle. Its low 16 bits are the language ID:
+//   0x0409 English (US)       0x0419 Russian
+//   0x0443 Uzbek (Latin)      0x0843 Uzbek (Cyrillic)
+// Windows keeps a separate layout for every window thread, so we always ask about the thread of
+// the foreground window, not about "the" system layout.
 #include "app.h"
 
-// Decides which alphabet applies to keys going to the foreground window.
+// Decides which converter applies to keys going to the foreground window.
+//
 //   Uzbek Latin (0x0443)                 -> Latin rules
-//   English, unless strict mode is on    -> Latin rules
+//   English, unless strict mode is on    -> Latin rules (Uzbek can then be typed on a plain US keyboard)
 //   Uzbek Cyrillic (0x0843)              -> Cyrillic to Latin conversion
 //   Russian, only if the option is on    -> Cyrillic to Latin conversion
-// Every other layout is left alone.
+//
+// "Strict mode" is g_bOnlyUzbekLayout, on by default. Every other layout is left alone, and
+// nothing applies while YAY is paused. This runs for every key press, so it only makes a few
+// cheap system calls.
 ActiveProfile GetActiveProfile(HKL *outLayout) {
   if (outLayout) *outLayout = NULL;
   if (!g_bEnabled) return AP_NONE;
+  // The layout belongs to the thread that owns the foreground window.
   HWND hFg = GetForegroundWindow();
   DWORD tid = hFg ? GetWindowThreadProcessId(hFg, NULL) : 0;
   HKL hkl = GetKeyboardLayout(tid);
   if (outLayout) *outLayout = hkl;
+  // Split the language ID into its primary language (Uzbek, Russian...) and sublanguage
+  // (Latin or Cyrillic script for Uzbek). The numeric tests catch the same layouts directly.
   WORD langId = LOWORD((DWORD_PTR)hkl);
   WORD primary = PRIMARYLANGID(langId);
   WORD sub = SUBLANGID(langId);
@@ -23,10 +37,13 @@ ActiveProfile GetActiveProfile(HKL *outLayout) {
   return AP_NONE;
 }
 
+// For callers that only care whether YAY is acting at all (tray icon, window text).
 bool IsUzbekInputMethodActive() {
   return GetActiveProfile(NULL) != AP_NONE;
 }
 
+// Is the Uzbek (Latin) layout in the user's list of layouts? It decides whether the window
+// offers the "add layout" button, and whether start-up should add it.
 bool IsUzbekLayoutInstalled() {
   int count = GetKeyboardLayoutList(0, NULL);
   if (count <= 0) return false;
@@ -42,7 +59,11 @@ bool IsUzbekLayoutInstalled() {
   return found;
 }
 
-// RtlGetVersion never lies, regardless of compatibility shims or manifest state.
+// True on Windows 8 and later. The two install paths differ because Windows 7 has no
+// PowerShell command for changing the language list (see AddUzbekPreloadWin7).
+// RtlGetVersion always reports the real version, even where a compatibility mode or a missing
+// manifest entry would make GetVersionEx report an older one. ntdll.dll exports it, but the
+// normal Windows headers do not declare it, so it is looked up at run time.
 bool IsWindows8OrGreaterReal() {
   typedef LONG(WINAPI * RtlGetVersionFn)(PRTL_OSVERSIONINFOW);
   HMODULE hNt = GetModuleHandleW(L"ntdll.dll");
@@ -54,10 +75,19 @@ bool IsWindows8OrGreaterReal() {
   return true;
 }
 
-// Windows 8+: add uz-Latn-UZ through PowerShell, hidden, on a worker thread.
-// The encoded command is UTF-16 base64 of:
+// Windows 8 and later: adds uz-Latn-UZ to the user's language list by running PowerShell.
+//
+// It runs on a worker thread because PowerShell takes a few seconds to start and the window must
+// not freeze meanwhile. When PowerShell ends (or after 15 s) the thread posts
+// WM_LAYOUT_INSTALL_DONE so the window can refresh itself.
+//
+// The command line uses -EncodedCommand, which takes the script as base64 of its UTF-16 text.
+// That avoids every quoting problem. The script is:
 //   $langs = Get-WinUserLanguageList; if (-not ($langs | Where-Object { $_.LanguageTag -like 'uz*' }))
 //   { $uz = New-WinUserLanguageList 'uz-Latn-UZ'; $langs.Add($uz[0]); Set-WinUserLanguageList $langs -Force }
+// To change the script, edit the text above and encode it again, for example in PowerShell:
+//   [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($scriptText))
+// The installer runs the same logic from install_uzbek_layout.ps1.
 static DWORD WINAPI InstallUzbekThreadProc(LPVOID) {
   const wchar_t *params =
       L"-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -EncodedCommand "
@@ -78,31 +108,44 @@ static DWORD WINAPI InstallUzbekThreadProc(LPVOID) {
   return 0;
 }
 
+// Starts InstallUzbekThreadProc in the background and returns at once.
 void TriggerAddUzbekLayout() {
   HANDLE h = CreateThread(NULL, 0, InstallUzbekThreadProc, NULL, 0, NULL);
   if (h) CloseHandle(h);
 }
 
+// Reads the leading decimal digits of `s`. No sign and no error handling, because the only input
+// is the numeric value names ("1", "2", ...) of the Preload registry key below.
 static int ParseInt(const wchar_t *s) {
   int n = 0;
   while (*s >= L'0' && *s <= L'9') n = n * 10 + (*s++ - L'0');
   return n;
 }
 
+// Writes a REG_SZ (text) registry value. Returns true on success.
 static bool SetStringValue(HKEY hKey, const wchar_t *name, const wchar_t *value) {
   return RegSetValueExW(hKey, name, 0, REG_SZ, (const BYTE *)value,
                         (DWORD)((lstrlenW(value) + 1) * sizeof(wchar_t))) == ERROR_SUCCESS;
 }
 
-// Windows 7: the language list is HKCU\Keyboard Layout\Preload (values "1", "2", ...).
-// Uzbek Latin has no keyboard DLL of its own, so Windows pairs it with the US layout
-// through HKCU\Keyboard Layout\Substitutes. Both take effect at the next sign-in.
+// Windows 7 fallback. Windows 7 has no command for adding a language, so we write what the
+// Region and Language control panel would write. The user then signs out and in once.
+//
+//   HKCU\Keyboard Layout\Preload      numbered list of the user's layouts: "1" = 00000409,
+//                                     "2" = 00000419, ... We append "00000443" (Uzbek Latin)
+//                                     as the next number, unless it is already there.
+//   HKCU\Keyboard Layout\Substitutes  Uzbek Latin has no keyboard file of its own, so Windows
+//                                     pairs it with the US layout. We add 00000443 -> 00000409.
+//
+// Both take effect at the next sign-in; the dashboard says so. Returns false if the registry
+// could not be written.
 bool AddUzbekPreloadWin7() {
   HKEY hPre;
   if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload", 0, NULL, 0,
                       KEY_READ | KEY_WRITE, NULL, &hPre, NULL) != ERROR_SUCCESS)
     return false;
 
+  // Find the highest number in use and whether Uzbek Latin is already listed.
   int maxIdx = 0;
   bool exists = false;
   for (DWORD i = 0;; i++) {
@@ -115,6 +158,7 @@ bool AddUzbekPreloadWin7() {
     if (idx > maxIdx) maxIdx = idx;
     if (type == REG_SZ && lstrcmpiW(data, L"00000443") == 0) exists = true;
   }
+  // Add it as the next number, unless it is already in the list.
   bool ok = true;
   if (!exists) {
     wchar_t name[16];
@@ -124,6 +168,7 @@ bool AddUzbekPreloadWin7() {
   RegCloseKey(hPre);
   if (!ok) return false;
 
+  // Tell Windows which keyboard to use for it: the US layout.
   HKEY hSub;
   if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Keyboard Layout\\Substitutes", 0, NULL, 0,
                       KEY_WRITE, NULL, &hSub, NULL) != ERROR_SUCCESS)

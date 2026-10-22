@@ -1,9 +1,23 @@
+// pill.cpp - the small hint popup ("the pill").
+//
+// After someone types the old form (sh, ch, o', g') a small dark rounded label appears near the
+// text cursor and says that the double tap is faster ("Maslahat: 'ss' tezroq"). It disappears on
+// the next key press or after a few seconds. It is the only window in YAY that we paint ourselves,
+// because it has to be small, borderless and rounded.
+//
+// The popup must never get in the way of typing, so it is created with:
+//   WS_EX_NOACTIVATE  never takes the keyboard focus, even when shown
+//   WS_EX_TOOLWINDOW  no taskbar button and not listed in Alt+Tab
+//   WS_EX_TOPMOST     stays above the window being typed into
 #include "app.h"
 
+// The popup window, its font and the text it currently shows.
 static HWND    g_hCoachWnd = NULL;
 static HFONT   g_hPillFont = NULL;
 static wchar_t g_coachText[128] = {0};
 
+// Paints the pill: a dark fill, a thin amber border (a rounded rectangle) and the centred text.
+// Only WM_PAINT is handled; everything else takes the default path.
 static LRESULT CALLBACK PopupWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   if (msg != WM_PAINT) return DefWindowProcW(hWnd, msg, wParam, lParam);
 
@@ -34,6 +48,8 @@ static LRESULT CALLBACK PopupWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
   return 0;
 }
 
+// Registers the window class, creates the font and the (still hidden) popup window.
+// The font is sized from the screen DPI: 10 points, converted to pixels.
 bool PillCreate() {
   WNDCLASSW wc = {0};
   wc.lpfnWndProc = PopupWndProc;
@@ -59,17 +75,26 @@ void PillDestroy() {
   if (g_hPillFont) { DeleteObject(g_hPillFont); g_hPillFont = NULL; }
 }
 
+// Hides the popup and cancels the timer that would hide it later. Called on every key press
+// and when the timer fires.
 void HidePill() {
   if (g_hMainWnd) KillTimer(g_hMainWnd, TIMER_COACH);
   if (g_hCoachWnd && IsWindowVisible(g_hCoachWnd)) ShowWindow(g_hCoachWnd, SW_HIDE);
 }
 
-// Places the pill just below the caret of the foreground window, or in the window's top-right
-// corner when the caret is not exposed (browsers, Word, Electron apps).
+// Shows `text` in the pill, near the place the user is typing.
+//
+// Where: just below the text cursor (the "caret") of the foreground window. Only classic Windows
+// edit controls expose their caret to other programs; browsers, Word and Electron apps draw their
+// own, so there we fall back to the top-right corner of the window, where the pill cannot cover
+// the text. With no usable window at all it goes to the bottom-right of the screen, by the tray.
+// The pill is kept inside the screen and clear of the taskbar (the "55" and "12" below are pixel
+// margins).
 static void ShowFloatingPill(const wchar_t *text) {
   if (!g_hCoachWnd) return;
   lstrcpynW(g_coachText, text, 128);
 
+  // Measure the text to size the pill (DT_CALCRECT only measures, it draws nothing).
   HDC hdc = GetDC(g_hCoachWnd);
   HFONT hOld = (HFONT)SelectObject(hdc, g_hPillFont);
   RECT rc = {0, 0, 800, 0};
@@ -83,6 +108,7 @@ static void ShowFloatingPill(const wchar_t *text) {
   int screenH = GetSystemMetrics(SM_CYSCREEN);
   int posX = 0, posY = 0;
 
+  // Ask the foreground window's thread where its caret is, and turn that into screen coordinates.
   GUITHREADINFO gti = {0};
   gti.cbSize = sizeof(gti);
   HWND hFg = GetForegroundWindow();
@@ -117,6 +143,8 @@ static void ShowFloatingPill(const wchar_t *text) {
     }
   }
 
+  // Clip the window to a rounded shape (the system owns the region after SetWindowRgn), then show
+  // it without stealing focus, and start the timer that hides it again.
   HRGN hRgn = CreateRoundRectRgn(0, 0, width + 1, height + 1, 14, 14);
   SetWindowRgn(g_hCoachWnd, hRgn, TRUE);
   SetWindowPos(g_hCoachWnd, HWND_TOPMOST, posX, posY, width, height, SWP_NOACTIVATE | SWP_SHOWWINDOW);
@@ -124,6 +152,7 @@ static void ShowFloatingPill(const wchar_t *text) {
   if (g_hMainWnd) SetTimer(g_hMainWnd, TIMER_COACH, DURATION_COACH_MS, NULL);
 }
 
+// The hint shown after a legacy form. `doubleTapHint` is the faster double tap, for example "ss".
 void ShowCoachingTip(const wchar_t *doubleTapHint) {
   wchar_t msg[128];
   wsprintfW(msg, L"Maslahat: '%s' tezroq", doubleTapHint);

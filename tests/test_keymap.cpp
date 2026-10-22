@@ -1,5 +1,7 @@
 // Checks CyrillicCharForKey against the Russian and Uzbek (Cyrillic) keyboard layouts that ship
 // with Windows. Built and run by build.cmd.
+// A layout that is not installed is reported as "skipped", not as a failure. Both layouts ship
+// with a normal Windows installation.
 #include "../src/keymap.h"
 #include <stdio.h>
 

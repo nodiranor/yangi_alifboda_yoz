@@ -14,6 +14,10 @@ See [README.md](README.md). In short: `build.cmd` runs the engine tests and buil
 - `src/translit.cpp`: Cyrillic to new Uzbek Latin, one letter at a time (`tests/test_translit.cpp`).
 - `src/keymap.cpp`: asks Windows which Cyrillic letter a key produces on the active layout (`tests/test_keymap.cpp`).
 - `src/hook.cpp`: turns keyboard events into engine input and sends the replacement.
+- `src/inject.cpp`: sends the replacement text to the focused application with SendInput.
+- `src/settings.cpp`: the options and the start-with-Windows entry, stored in the registry.
+- `src/main.cpp`: entry point, single-instance check, message loop and the global state. `src/app.h` lists everything the files share.
+- `src/nocrt.cpp`: the two C library functions the exe still needs, because it is linked without the C runtime.
 - `src/dashboard.cpp`, `src/tray.cpp`, `src/pill.cpp`: the window, the tray icon and the small hint popup.
 - `src/layout.cpp`: keyboard layout detection and adding the Uzbek layout.
 - `res/`: dialog layout, manifest, icons.
@@ -26,4 +30,5 @@ See [README.md](README.md). In short: `build.cmd` runs the engine tests and buil
 - Windows 7 must keep working. Load anything newer than Windows 7 with `GetProcAddress`.
 - The window uses standard controls from the dialog resource. No custom drawing.
 - No network access and no logging of typed text.
+- Comment the why, not the what. The code shows what it does; a comment should say why it has to be that way.
 - Keep the exe small.

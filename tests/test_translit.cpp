@@ -1,4 +1,6 @@
 // Console tests for src/translit.cpp. Built and run by build.cmd.
+// Covered: every letter of the table, the ye rule for е, capitals (Shift versus Caps Lock),
+// word boundaries and Backspace. Add a case here before changing src/translit.cpp.
 #include "../src/translit.h"
 #include <stdio.h>
 #include <wchar.h>

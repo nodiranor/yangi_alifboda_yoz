@@ -1,7 +1,16 @@
+// tray.cpp - the notification-area ("system tray") icon and its right-click menu.
+//
+// The icon shows the state at a glance: the colourful icon while YAY is acting, a grey one while it
+// is paused or the active layout is not one of ours. Clicks arrive in the dashboard window as
+// WM_TRAYICON (see DashboardDlgProc): left click pauses or resumes, double click opens the window,
+// right click shows the menu.
 #include "app.h"
 
+// Describes our tray icon. Kept for the whole run, because every later call (modify, delete)
+// has to identify the same icon with the same window handle and ID.
 static NOTIFYICONDATAW g_nid = {0};
 
+// Creates the icon. Also called again when Explorer restarts, because it forgets all tray icons.
 void TrayAdd() {
   g_nid.cbSize = sizeof(NOTIFYICONDATAW);
   g_nid.hWnd = g_hMainWnd;
@@ -13,10 +22,13 @@ void TrayAdd() {
   Shell_NotifyIconW(NIM_ADD, &g_nid);
 }
 
+// Removes the icon on exit. Without this, a dead icon would stay until the mouse passes over it.
 void TrayRemove() {
   Shell_NotifyIconW(NIM_DELETE, &g_nid);
 }
 
+// Picks the icon and tooltip for the current state and refreshes the dashboard text too.
+// The tray is only touched when something actually changed, which avoids flicker.
 void UpdateTrayStatus() {
   bool activeNow = g_bEnabled && IsUzbekInputMethodActive();
   HICON icon = activeNow ? g_hIconActive : g_hIconPaused;
@@ -33,6 +45,10 @@ void UpdateTrayStatus() {
   UpdateDashboardUI();
 }
 
+// The right-click menu. Commands come back to the dashboard window as WM_COMMAND with ID_TRAY_*.
+// A tray menu needs SetForegroundWindow before it opens and a harmless WM_NULL after it closes;
+// without these, the menu would not close when the user clicks elsewhere. This is documented
+// Windows behaviour for notification-area menus.
 void TrayShowMenu(HWND hWnd) {
   HMENU hMenu = CreatePopupMenu();
   AppendMenuW(hMenu, MF_STRING, ID_TRAY_OPEN_DASHBOARD, L"YAY oynasini oçiş");

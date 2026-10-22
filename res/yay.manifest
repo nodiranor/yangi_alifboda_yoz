@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <!-- Embedded into YAY.exe by res/yay.rc. It tells Windows how to treat the program. -->
   <assemblyIdentity type="win32" name="YAY.YangiAlifbodaYoz" version="2.0.0.0" processorArchitecture="*"/>
   <description>YAY - Yangi Alifboda Yoz</description>
+  <!-- Use the modern (version 6) look for buttons, checkboxes and the sponsor link. Without
+       this entry they are drawn in the old Windows 95 style. -->
   <dependency>
     <dependentAssembly>
       <assemblyIdentity type="win32" name="Microsoft.Windows.Common-Controls" version="6.0.0.0"
                         processorArchitecture="*" publicKeyToken="6595b64144ccf1df" language="*"/>
     </dependentAssembly>
   </dependency>
+  <!-- Run as the normal user. YAY never needs administrator rights. -->
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
       <requestedPrivileges>
@@ -15,6 +19,8 @@
       </requestedPrivileges>
     </security>
   </trustInfo>
+  <!-- The Windows versions YAY was written for, one GUID each: Windows 7, 8, 8.1 and 10/11.
+       Without these entries newer Windows reports an older version number to the program. -->
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
       <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>
@@ -23,6 +29,9 @@
       <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
     </application>
   </compatibility>
+  <!-- High DPI: draw the window sharply at the real scale of each monitor instead of letting
+       Windows stretch it like a picture. dpiAware is read by Windows 8.1 and early Windows 10,
+       dpiAwareness (PerMonitorV2 first, then the fallbacks) by newer versions. -->
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
       <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>

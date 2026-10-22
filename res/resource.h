@@ -1,13 +1,17 @@
+// resource.h - numeric IDs shared by the resource script (yay.rc) and the C++ code (app.h).
 #pragma once
 
-// Icons
+// Icons stored in the exe. The tray switches between the two.
 #define IDI_APPICON            101
 #define IDI_PAUSEDICON         102
 
-// Dialog
+// The dashboard window's dialog template.
 #define IDD_MAIN               200
 
-// Dialog controls
+// Controls of the dashboard dialog (IDC_*). The numbers only have to be unique inside the dialog.
+// They are not in order because controls were added over time; nothing depends on the order, so
+// do not renumber. To add a control: give it an ID here, place it in yay.rc, and handle it in
+// DashboardDlgProc (src/dashboard.cpp).
 #define IDC_STATUS_TEXT        3007
 #define IDC_LANG_TEXT          3008
 #define IDC_BTN_ADD_UZBEK      3009
@@ -28,7 +32,8 @@
 #define IDC_BTN_HIDE           3004
 #define IDC_BTN_EXIT           3005
 
-// Tray menu commands (also sent as WM_COMMAND by a second instance)
+// Commands from the tray menu (ID_TRAY_*). They arrive in the dashboard as WM_COMMAND. A second
+// launch of YAY sends ID_TRAY_OPEN_DASHBOARD the same way, to bring the first window forward.
 #define ID_TRAY_OPEN_DASHBOARD 1000
 #define ID_TRAY_ENABLE         1001
 #define ID_TRAY_ONLY_UZBEK     1002

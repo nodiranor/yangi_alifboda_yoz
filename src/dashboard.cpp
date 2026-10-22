@@ -1,8 +1,19 @@
+// dashboard.cpp - the main window.
+//
+// The window is a dialog laid out in res/yay.rc (IDD_MAIN). It only uses standard Windows controls,
+// so it looks native on every Windows version and scales with the display DPI by itself.
+// DashboardDlgProc is its message handler. Because this is the one window YAY always keeps (even
+// when hidden), it also receives the messages of the tray icon, the timers and the system's
+// "layout changed" notifications.
 #include "app.h"
 
+// Message numbers that Windows hands out at run time (RegisterWindowMessage), filled in by
+// WM_INITDIALOG. One is the shell's "something changed" broadcast, the other is sent when
+// Explorer restarts. Being run-time values, they cannot be `case` labels.
 static UINT g_shellHookMsg = 0;
 static UINT g_taskbarCreatedMsg = 0;
 
+// Check or read a checkbox of the window.
 static void SetCheck(HWND hDlg, int id, bool on) { CheckDlgButton(hDlg, id, on ? BST_CHECKED : BST_UNCHECKED); }
 static bool GetCheck(HWND hDlg, int id) { return IsDlgButtonChecked(hDlg, id) == BST_CHECKED; }
 
@@ -13,6 +24,7 @@ static void SetTextIfChanged(HWND hDlg, int id, const wchar_t *text) {
   if (n == 0 || lstrcmpW(cur, text) != 0) SetDlgItemTextW(hDlg, id, text);
 }
 
+// Brings the window up from the tray: show it, undo a minimise, and give it the focus.
 void ShowDashboard() {
   if (!g_hMainWnd) return;
   ShowWindow(g_hMainWnd, SW_SHOW);
@@ -21,9 +33,13 @@ void ShowDashboard() {
   UpdateDashboardUI();
 }
 
+// Refreshes everything in the window that depends on the current state: the status line, the
+// "add layout" button and the line that names the current keyboard. Cheap and safe to call
+// often; it does nothing while the window is hidden.
 void UpdateDashboardUI() {
   if (!g_hMainWnd || !IsWindowVisible(g_hMainWnd)) return;
 
+  // Status line: what is YAY doing right now?
   const ActiveProfile profile = g_bEnabled ? GetActiveProfile(NULL) : AP_NONE;
   const wchar_t *status = !g_bEnabled            ? L"Holat: Öçirilgan (pauza). Yoqiş uçun tray belgisini bosing."
                         : profile == AP_LATIN    ? L"Holat: Faol. UZB (Özbek lotin) tanlangan, yozişingiz mumkin."
@@ -31,6 +47,8 @@ void UpdateDashboardUI() {
                                                  : L"Holat: Kutiş rejimi. Boşqa til tanlangan.";
   SetTextIfChanged(g_hMainWnd, IDC_STATUS_TEXT, status);
 
+  // The "add layout" button: once the layout exists it says so and is disabled. On Windows 7,
+  // after the registry entries are written, only the sign-out is missing.
   bool uzInstalled = IsUzbekLayoutInstalled();
   HWND hBtn = GetDlgItem(g_hMainWnd, IDC_BTN_ADD_UZBEK);
   if (uzInstalled) {
@@ -44,6 +62,9 @@ void UpdateDashboardUI() {
     EnableWindow(hBtn, TRUE);
   }
 
+  // Keyboard line: name the current layout and say what it means for YAY. langId is the low
+  // 16 bits of the layout handle (0x0443 Uzbek Latin, 0x0843 Uzbek Cyrillic). Note that this is
+  // the layout of the foreground window; when this window itself is in front, that is its own.
   HWND hFg = GetForegroundWindow();
   DWORD tid = hFg ? GetWindowThreadProcessId(hFg, NULL) : 0;
   WORD langId = LOWORD((DWORD_PTR)GetKeyboardLayout(tid));
@@ -65,6 +86,9 @@ void UpdateDashboardUI() {
   SetTextIfChanged(g_hMainWnd, IDC_LANG_TEXT, buf);
 }
 
+// The "add layout" button. Windows 8 and later: start the PowerShell job in the background
+// (WM_LAYOUT_INSTALL_DONE comes back when it ends). Windows 7: write the registry and ask the
+// user to sign out and in.
 static void OnAddUzbekLayout(HWND hDlg) {
   if (IsWindows8OrGreaterReal()) {
     SetDlgItemTextW(hDlg, IDC_BTN_ADD_UZBEK, L"Örnatilmoqda...");
@@ -86,7 +110,13 @@ static void OnAddUzbekLayout(HWND hDlg) {
   UpdateDashboardUI();
 }
 
+// The window procedure. A dialog procedure returns TRUE when it handled the message and FALSE to
+// let the default dialog code run. (WM_INITDIALOG is the exception: there the return value says
+// whether Windows should set the focus.)
 INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam) {
+  // The shell broadcasts a message to windows registered with RegisterShellHookWindow whenever the
+  // keyboard layout or the active window changes. That is how the tray icon follows the layout
+  // without a polling timer.
   if (g_shellHookMsg && msg == g_shellHookMsg) {
     if (wParam == HSHELL_LANGUAGE || wParam == HSHELL_WINDOWACTIVATED || wParam == HSHELL_RUDEAPPACTIVATED)
       UpdateTrayStatus();
@@ -99,7 +129,10 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     return TRUE;
   }
 
+  // The real messages. Each case ends with return TRUE (handled) or FALSE (use the default).
   switch (msg) {
+  // Set the window icons, tick every box to match the current settings, and sign up for the
+  // shell notifications above. FALSE: we set the focus ourselves (to the test box).
   case WM_INITDIALOG:
     g_hMainWnd = hDlg;
     SendMessageW(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)g_hIconActive);
@@ -115,11 +148,16 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     SetFocus(GetDlgItem(hDlg, IDC_EDIT_TEST));
     return FALSE;
 
+  // The one-second refresh timer only runs while the window is visible, so a hidden YAY costs
+  // no CPU at all.
   case WM_SHOWWINDOW:
     if (wParam) SetTimer(hDlg, TIMER_DASH_REFRESH, 1000, NULL);
     else KillTimer(hDlg, TIMER_DASH_REFRESH);
     return FALSE;
 
+  // Commands from three sources: this window's buttons and boxes (IDC_*), the Esc key
+  // (IDCANCEL), and the tray menu (ID_TRAY_*). A second launch of YAY also sends
+  // ID_TRAY_OPEN_DASHBOARD here (see main.cpp).
   case WM_COMMAND: {
     int id = LOWORD(wParam);
     switch (id) {
@@ -145,6 +183,8 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     return FALSE;
   }
 
+  // The sponsor link is a SysLink control. It sends WM_NOTIFY when it is clicked, or activated
+  // with the keyboard, and we open the address in the default browser.
   case WM_NOTIFY: {
     NMHDR *hdr = (NMHDR *)lParam;
     if (hdr->idFrom == IDC_SPONSOR && (hdr->code == NM_CLICK || hdr->code == NM_RETURN)) {
@@ -162,10 +202,14 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     return TRUE;
 #endif
 
+  // The PowerShell job finished: the layout list probably changed, so refresh.
   case WM_LAYOUT_INSTALL_DONE:
     UpdateTrayStatus();
     return TRUE;
 
+  // TIMER_COACH: time to hide the hint popup. TIMER_DASH_REFRESH: the once-a-second refresh while
+  // the window is visible. It catches changes the shell notification does not, such as the Uzbek
+  // layout appearing a moment after PowerShell finishes.
   case WM_TIMER:
     if (wParam == TIMER_COACH) HidePill();
     else if (wParam == TIMER_DASH_REFRESH) UpdateTrayStatus();
@@ -184,10 +228,13 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     }
     return TRUE;
 
+  // The X button only hides the window; YAY keeps running in the tray. Use the Exit button or
+  // the tray menu to quit.
   case WM_CLOSE:
     ShowWindow(hDlg, SW_HIDE);
     return TRUE;
 
+  // Reached from the Exit button or the tray menu. Clean up, then end the message loop in main.cpp.
   case WM_DESTROY:
     KillTimer(hDlg, TIMER_DASH_REFRESH);
     KillTimer(hDlg, TIMER_COACH);

@@ -10,6 +10,7 @@ try {
             break
         }
     }
+    # Add uz-Latn-UZ (Uzbek, Latin script) at the end of the list. -Force skips the confirmation prompt.
     if (-not $hasUz) {
         $uz = New-WinUserLanguageList "uz-Latn-UZ"
         foreach ($u in $uz) {

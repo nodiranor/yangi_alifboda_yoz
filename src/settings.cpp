@@ -1,20 +1,37 @@
+// settings.cpp - saved options and the "start with Windows" entry. Both live in the registry
+// of the current user, so no administrator rights are needed.
+//
+//   HKCU\Software\YAY_YangiAlifbo      the options, one DWORD each (0 = off, 1 = on):
+//        OnlyUzbek                     Latin rules only on the Uzbek (Latin) layout   (default 1)
+//        SingleC                       a lone c types ç                               (default 0)
+//        ShowTips                      show the hint popup                            (default 1)
+//        CyrillicOnRussian             convert Cyrillic to Latin on the Russian layout (default 0)
+//
+//   HKCU\...\Windows\CurrentVersion\Run   the standard "start with Windows" list; YAY adds the
+//                                         value YAY_UzbekKeyboard = "<exe path>" /tray
 #include "app.h"
 
+// Registry locations. The Run key and value name are also written by the installer
+// (YAY_Setup.iss), so keep them in sync.
 static const wchar_t *REG_CONFIG_KEY = L"Software\\YAY_YangiAlifbo";
 static const wchar_t *REG_RUN_KEY    = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 static const wchar_t *RUN_VALUE_NAME = L"YAY_UzbekKeyboard";
 
+// Reads one on/off option. If the value is missing or has the wrong type, `*out` keeps the
+// default it already has.
 static void ReadBool(HKEY hKey, const wchar_t *name, bool *out) {
   DWORD val = 0, size = sizeof(val), type = 0;
   if (RegQueryValueExW(hKey, name, NULL, &type, (LPBYTE)&val, &size) == ERROR_SUCCESS && type == REG_DWORD)
     *out = (val != 0);
 }
 
+// Writes one on/off option.
 static void WriteBool(HKEY hKey, const wchar_t *name, bool value) {
   DWORD val = value ? 1 : 0;
   RegSetValueExW(hKey, name, 0, REG_DWORD, (const BYTE *)&val, sizeof(val));
 }
 
+// Reads all options into the globals. Silent if the key does not exist yet (first run).
 void LoadSettings() {
   HKEY hKey;
   if (RegOpenKeyExW(HKEY_CURRENT_USER, REG_CONFIG_KEY, 0, KEY_READ, &hKey) != ERROR_SUCCESS) return;
@@ -25,6 +42,7 @@ void LoadSettings() {
   RegCloseKey(hKey);
 }
 
+// Writes all options. Called each time the user changes one in the window or the tray menu.
 void SaveSettings() {
   HKEY hKey;
   if (RegCreateKeyExW(HKEY_CURRENT_USER, REG_CONFIG_KEY, 0, NULL, 0, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS) return;
@@ -35,6 +53,7 @@ void SaveSettings() {
   RegCloseKey(hKey);
 }
 
+// Is YAY registered to start with Windows? (Only checks that the value exists.)
 bool IsInStartup() {
   HKEY hKey;
   if (RegOpenKeyExW(HKEY_CURRENT_USER, REG_RUN_KEY, 0, KEY_READ, &hKey) != ERROR_SUCCESS) return false;
@@ -44,6 +63,8 @@ bool IsInStartup() {
   return exists;
 }
 
+// Adds (enable) or removes (disable) the start-with-Windows entry. The command line stored is the
+// path of this exe plus /tray, so it starts hidden in the tray instead of opening the window.
 void ToggleStartup(bool enable) {
   HKEY hKey;
   if (RegOpenKeyExW(HKEY_CURRENT_USER, REG_RUN_KEY, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS) return;

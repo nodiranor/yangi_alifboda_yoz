@@ -3,11 +3,15 @@
 #include <commctrl.h>
 #include "resource.h"
 
+// The manifest: modern controls, DPI awareness and the supported Windows versions (yay.manifest).
 1 RT_MANIFEST "yay.manifest"
 
+// Icons from 16 to 256 px, generated from Icon.png by tools/make_icons.py. IDs: resource.h.
 IDI_APPICON    ICON "app.ico"
 IDI_PAUSEDICON ICON "app_paused.ico"
 
+// Version information shown in the file's Properties window. Keep the version in step with
+// MyAppVersion in YAY_Setup.iss and the version in yay.manifest.
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION     2,0,0,0
 PRODUCTVERSION  2,0,0,0
@@ -38,9 +42,20 @@ BEGIN
     END
 END
 
+// The dashboard window.
+//
+// Positions and sizes are "dialog units", which scale with the dialog font and the display DPI,
+// so the layout holds at every scaling. (One horizontal unit is a quarter of the average
+// character width of the font, one vertical unit an eighth of its height.)
+//
+// The text is in the new Uzbek Latin alphabet. In the typing rules the old forms (sh, ch, o', g')
+// are shown on purpose, because they are what people type.
+//
+// Group boxes only draw a frame; the controls inside are placed over them, not owned by them.
 IDD_MAIN DIALOGEX 0, 0, 320, 268
 STYLE DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
 EXSTYLE WS_EX_APPWINDOW
+// The window class, registered in main.cpp. A second launch of YAY finds the first through it.
 CLASS "YAYDashboardClass"
 CAPTION "YAY - Yangi Alifboda Yoz"
 FONT 9, "Segoe UI", 400, 0, 0x0
@@ -55,6 +70,7 @@ BEGIN
     LTEXT           "Eski usul ham işlaydi: sh → ş, ch → ç, o' → ö, g' → ğ", IDC_RULE3, 15, 91, 290, 10
     LTEXT           "Kirill klaviaturada yozsangiz lotin çiqadi: ш → ş, ч → ç, ў → ö, ғ → ğ, қ → q, ҳ → h, ё → yo, ю → yu, я → ya.", IDC_RULE4, 15, 103, 290, 20
     LTEXT           "Sinab köring:", IDC_TEST_LABEL, 15, 129, 48, 10
+    // The test box: type here to try the rules without opening another program.
     EDITTEXT        IDC_EDIT_TEST, 66, 126, 239, 14, ES_AUTOHSCROLL
 
     GROUPBOX        "Sozlamalar", IDC_GRP_SETTINGS, 7, 153, 306, 86
@@ -64,7 +80,12 @@ BEGIN
     AUTOCHECKBOX    "Rus (RU) klaviaturasida ham ögiriş (rus matni ham lotin böladi)", IDC_CHK_CYR_RU, 15, 208, 290, 10
     AUTOCHECKBOX    "Windows bilan birga işga tuşiriş", IDC_CHK_STARTUP, 15, 222, 290, 10
 
+    // SysLink: a label with a clickable link, handled in DashboardDlgProc (WM_NOTIFY).
+    // Inside an RC string a quote is written as two quotes.
     CONTROL         "Homiy: <a href=""https://t.me/juraboshibot"">t.me/juraboshibot</a>", IDC_SPONSOR, "SysLink", WS_TABSTOP, 7, 250, 160, 10
+    // There is deliberately no default button: pressing Enter in the test box must not hide the
+    // window. "&" marks the Alt+letter shortcut. The letters are plain ASCII (Y, Q) because
+    // Alt+ç or Alt+ö cannot be typed on most keyboards.
     PUSHBUTTON      "&Yaşiriş", IDC_BTN_HIDE, 191, 247, 72, 14
     PUSHBUTTON      "Çi&qiş", IDC_BTN_EXIT, 267, 247, 46, 14
 END

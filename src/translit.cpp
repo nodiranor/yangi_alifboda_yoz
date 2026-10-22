@@ -1,10 +1,16 @@
+// translit.cpp - Cyrillic to new Uzbek Latin. See translit.h for the mapping and the design notes.
 #include "translit.h"
 
+// One row of the mapping: a Cyrillic letter (lower and upper case) and its Latin form.
 struct Rule {
   wchar_t lower, upper;  // the Cyrillic letter
   const wchar_t *latin;  // its lowercase Latin form
 };
 
+// The mapping table. The Cyrillic letters are written as Unicode code points so the file does
+// not depend on its encoding; the letter itself is in the comment. The Latin side is the new
+// alphabet: ş ç ö ğ for sh ch o' g', and ʼ (U+02BC, the tutuq belgisi) for ъ.
+// Case is not in the table: the capital Latin form is worked out in TranslitLetter.
 static const Rule kRules[] = {
   { 0x0430, 0x0410, L"a" },            // а
   { 0x0431, 0x0411, L"b" },            // б
@@ -45,6 +51,8 @@ static const Rule kRules[] = {
   { 0x04B3, 0x04B2, L"h" },            // ҳ
 };
 
+// The capital of a lowercase Latin letter from our table. In Unicode the capitals of ş and ğ are
+// one code point below them; the capitals of ç and ö are 32 below (as with a-z). ʼ has no case.
 static wchar_t UpperLatin(wchar_t c) {
   if (c >= L'a' && c <= L'z') return (wchar_t)(c - 32);
   if (c == 0x015F || c == 0x011F) return (wchar_t)(c - 1);  // ş ğ
@@ -52,6 +60,8 @@ static wchar_t UpperLatin(wchar_t c) {
   return c;
 }
 
+// Is `c` a vowel (a e i o u ö, either case) or the tutuq belgisi ʼ? A Cyrillic е typed right after
+// one of these is read as "ye".
 static bool IsVowelOrTutuq(wchar_t c) {
   switch (c) {
     case L'a': case L'e': case L'i': case L'o': case L'u': case 0x00F6:
@@ -62,10 +72,15 @@ static bool IsVowelOrTutuq(wchar_t c) {
   return false;
 }
 
+// Word boundary or unknown key: forget what came before. A following е then reads "ye".
 void TranslitReset(TranslitState *st) { st->len = 0; }
 
+// Backspace deletes one character in the application, so we forget one too. (If the last
+// letter was a two-letter result such as "ya", one Backspace removes the "a" and we do the same.)
 void TranslitBackspace(TranslitState *st) { if (st->len > 0) st->len--; }
 
+// Remembers a Latin letter we just produced. Only the last 8 are kept; older ones can no longer
+// change the answer.
 static void Push(TranslitState *st, wchar_t c) {
   if (st->len == 8) {
     for (int i = 1; i < 8; i++) st->tail[i - 1] = st->tail[i];
@@ -74,7 +89,10 @@ static void Push(TranslitState *st, wchar_t c) {
   st->tail[st->len++] = c;
 }
 
+// See translit.h. In short: finds the letter in the table, picks "ye" or "e" for е, applies
+// capitals, remembers the result, and returns its length.
 int TranslitLetter(TranslitState *st, wchar_t cyrillic, bool allCaps, wchar_t out[4]) {
+  // Look the letter up, in either case. `upper` records which case it was.
   const Rule *rule = 0;
   bool upper = false;
   for (unsigned i = 0; i < sizeof(kRules) / sizeof(kRules[0]); i++) {
@@ -83,12 +101,16 @@ int TranslitLetter(TranslitState *st, wchar_t cyrillic, bool allCaps, wchar_t ou
   }
   if (!rule) return -1;
 
+  // е is the only letter that needs context: "ye" at the start of a word and after a vowel
+  // (Европа -> Yevropa, поезд -> poyezd), "e" after a consonant (беш -> beş).
   const wchar_t *src = rule->latin;
   if (rule->lower == 0x0435) {  // е
     const bool ye = (st->len == 0) || IsVowelOrTutuq(st->tail[st->len - 1]);
     src = ye ? L"ye" : L"e";
   }
 
+  // Copy the result, then capitalise it: the first letter always, the rest only while Caps Lock
+  // is typing capitals (so Shift+Ю gives "Yu" and Caps Lock+Ю gives "YU").
   int n = 0;
   while (src[n] && n < 3) { out[n] = src[n]; n++; }
   if (upper && n > 0) {
@@ -96,6 +118,7 @@ int TranslitLetter(TranslitState *st, wchar_t cyrillic, bool allCaps, wchar_t ou
     if (allCaps) for (int i = 1; i < n; i++) out[i] = UpperLatin(out[i]);
   }
   out[n] = 0;
+  // Remember what we produced, for the next е.
   for (int i = 0; i < n; i++) Push(st, out[i]);
   return n;
 }

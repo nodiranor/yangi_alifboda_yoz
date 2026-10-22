@@ -7,6 +7,18 @@
 //
 // The only memory needed is the last few Latin letters produced, for the "ye" rule.
 
+// Design notes.
+//   * hook.cpp calls TranslitLetter for every Cyrillic letter typed on a Cyrillic layout and
+//     types the result instead of the key.
+//   * The conversion works letter by letter. It needs no dictionary, never waits for the next
+//     key, and behaves the same in every program.
+//   * The one letter that depends on its surroundings is е (ye or e), so we remember the last
+//     few Latin letters we produced. Backspace and word breaks keep that memory in step with
+//     the text on screen.
+//   * To change or add a mapping, edit kRules in translit.cpp and add cases to
+//     tests/test_translit.cpp.
+//
+// The memory of the last Latin letters produced.
 struct TranslitState {
   wchar_t tail[8];  // last Latin characters produced, newest last
   int     len;

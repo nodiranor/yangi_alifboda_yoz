@@ -1,5 +1,7 @@
 // Console tests for src/engine.cpp. Build and run with build.cmd, or:
 //   cl /nologo /W3 /O1 /MT /EHs-c- /utf-8 /Fobuild\ /Febuild\test_engine.exe tests\test_engine.cpp src\engine.cpp
+// Covered: double tap, triple tap, capitals, the old forms (sh ch o' g'), the timing window,
+// resets by other keys, and the hint text. Add a case here before changing a rule in engine.cpp.
 #include "../src/engine.h"
 #include <stdio.h>
 #include <string.h>
