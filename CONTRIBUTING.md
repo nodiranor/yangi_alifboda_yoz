@@ -1,34 +1,32 @@
-# Hissa qöşiş / Contributing
+# Hissa qöşiş
 
 Takliflar va xatoliklar uçun Issue oçing. Xatolik haqida yozganda YAY va Windows versiyasini, dastur nomini (Word, Chrome, Telegram...) va aynan qaysi tugmalar bosilganini körsating.
 
-Open an issue for bugs and ideas. For a bug, include the YAY version, your Windows version, the application, and the exact keys you pressed.
+## Yiğiş va sinov
 
-## Build and test
+Batafsil [README.md](README.md) da. Qisqaça: `build.cmd` dvigatel testlarini işga tuşiradi va exe faylni yiğadi, `tests\e2e.cmd` esa real klaviatura bosişlarini dasturning sinov maydoniga yuboradi.
 
-See [README.md](README.md). In short: `build.cmd` runs the engine tests and builds the exe, `tests\e2e.cmd` types real keys into the program's test box.
+## Kod qayerda
 
-## Where things are
+- `src/engine.cpp`: lotin yoziş qoidalari (ikki va uç marta bosiş). Unda Win32 çaqiruvlari yöq, şuning uçun uni `tests/test_engine.cpp` bevosita tekşiradi.
+- `src/translit.cpp`: kirilldan yangi özbek lotiniga ögiriş, harfma-harf (`tests/test_translit.cpp`).
+- `src/keymap.cpp`: faol klaviaturada tugma qaysi kirill harfini berişini Windowsdan söraydi (`tests/test_keymap.cpp`).
+- `src/hook.cpp`: klaviatura hodisalarini dvigatelga uzatadi va almaştirişni yuboradi.
+- `src/inject.cpp`: almaştiriş matnini `SendInput` orqali faol dasturga yuboradi.
+- `src/settings.cpp`: sozlamalar va Windows bilan birga işga tuşiriş yozuvi. Ikkalasi röyxatda saqlanadi.
+- `src/main.cpp`: kiriş nuqtasi, dastur ikkinçi marta işga tuşmasligini tekşiriş, xabarlar tsikli va umumiy holat. Fayllar baham köradigan hamma narsa `src/app.h` da keltirilgan.
+- `src/nocrt.cpp`: exe C runtime kutubxonasiz yiğilgani uçun hali ham kerak bölgan ikkita C funksiyasi.
+- `src/dashboard.cpp`, `src/tray.cpp`, `src/pill.cpp`: dastur oynasi, soat yonidagi belgi (tray) va kiçik maslahat oynaçasi.
+- `src/layout.cpp`: faol klaviaturani aniqlaş va Özbek klaviaturasini qöşiş.
+- `res/`: oyna joylaşuvi (dialog), manifest va ikonkalar.
 
-- `src/engine.cpp`: the Latin typing rules (double and triple tap). It has no Win32 calls, so it is tested directly by `tests/test_engine.cpp`.
-- `src/translit.cpp`: Cyrillic to new Uzbek Latin, one letter at a time (`tests/test_translit.cpp`).
-- `src/keymap.cpp`: asks Windows which Cyrillic letter a key produces on the active layout (`tests/test_keymap.cpp`).
-- `src/hook.cpp`: turns keyboard events into engine input and sends the replacement.
-- `src/inject.cpp`: sends the replacement text to the focused application with SendInput.
-- `src/settings.cpp`: the options and the start-with-Windows entry, stored in the registry.
-- `src/main.cpp`: entry point, single-instance check, message loop and the global state. `src/app.h` lists everything the files share.
-- `src/nocrt.cpp`: the two C library functions the exe still needs, because it is linked without the C runtime.
-- `src/dashboard.cpp`, `src/tray.cpp`, `src/pill.cpp`: the window, the tray icon and the small hint popup.
-- `src/layout.cpp`: keyboard layout detection and adding the Uzbek layout.
-- `res/`: dialog layout, manifest, icons.
+## Kod yoziş qoidalari
 
-## Guidelines
-
-- Change a typing rule by adding the test case first, then the code.
-- Never intercept Enter, Tab or Escape. That was the problem with the first version.
-- Windows API only. The exe is linked without the C runtime, so use `wsprintfW`, `lstrcpynW` and similar instead of `printf` or `wcscpy`. No STL, no exceptions.
-- Windows 7 must keep working. Load anything newer than Windows 7 with `GetProcAddress`.
-- The window uses standard controls from the dialog resource. No custom drawing.
-- No network access and no logging of typed text.
-- Comment the why, not the what. The code shows what it does; a comment should say why it has to be that way.
-- Keep the exe small.
+- Yoziş qoidasini özgartirmoqçi bölsangiz, avval test qöşing, söng kodni özgartiring.
+- Enter, Tab va Escape tugmalariga heç qaçon tegmang. Birinçi versiyadagi muammo aynan şunda edi.
+- Faqat Windows API. Exe C runtime kutubxonasiz yiğiladi, şuning uçun `printf` yoki `wcscpy` örniga `wsprintfW`, `lstrcpynW` va şunga öxşaş funksiyalarni işlating. STL va istisnolar (exceptions) işlatilmaydi.
+- Windows 7 da işlaş saqlanib qolişi şart. Windows 7 dan yangi funksiyalarni `GetProcAddress` orqali yuklang.
+- Oynada dialog resursidagi standart elementlar işlatiladi. Elementlarni özingiz çizmang.
+- Tarmoqqa ulanmang va yozilgan matnni jurnalga yozmang.
+- Izohda nima uçun deb yozing, nima qilayotganini emas. Kod nima qilayotganini özi körsatadi, izoh esa nega aynan şunday bölişi kerakligini tuşuntirişi kerak.
+- Exe hajmini kiçik saqlang.
