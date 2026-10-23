@@ -1,7 +1,8 @@
 # Build output
 build/
 /YAY.exe
-/Output/
+# Output/YAY_Setup.exe (the installer) is committed on purpose, so people can install YAY
+# without building it themselves. Only its build folder, build/, stays ignored.
 *.obj
 *.res
 *.o

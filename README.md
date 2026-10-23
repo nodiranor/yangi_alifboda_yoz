@@ -6,6 +6,8 @@
 
 **YAY** is a small Windows program for typing the new Uzbek Latin letters (ş, ç, ö, ğ) on a regular keyboard. For people who are used to a Cyrillic keyboard, it also converts what they type in Cyrillic into the new Uzbek Latin alphabet. It runs in the tray and only acts while the Uzbek (Latin) or Uzbek (Cyrillic) keyboard layout is selected (Win + Space). The English layout is left alone, and the Russian layout is only used if you turn it on in the settings.
 
+**Yuklab oliş / Download:** [YangiAlifbodaYoz.uz](https://yangialifbodayoz.uz) · [YAY_Setup.exe (GitHub)](https://github.com/nodiranor/yangi_alifboda_yoz/raw/main/Output/YAY_Setup.exe)
+
 Homiy / Sponsor: [t.me/juraboshibot](https://t.me/juraboshibot)
 
 ## Qoidalar / Typing rules
@@ -49,9 +51,14 @@ If you are used to a Cyrillic keyboard: while the Uzbek (Cyrillic) layout is sel
 
 ## Örnatiş / Install
 
-[Releases](https://github.com/nodiranor/yangi_alifboda_yoz/releases) sahifasidan `YAY_Setup.exe` (örnatuvçi) yoki `YAY.exe` (örnatmasdan işlaydi) ni yuklab oling. Windows 7 SP1 va undan yangisi, 32 yoki 64 bit. `YAY.exe /tray` oynasiz, faqat tizim pastidan işga tuşadi.
+Örnatuvçi `YAY_Setup.exe` ni ikki joydan yuklab olişingiz mumkin:
 
-Download `YAY_Setup.exe` (installer) or the portable `YAY.exe` from the Releases page. Windows 7 SP1 or newer, 32 or 64 bit. `YAY.exe /tray` starts in the tray without a window.
+- Rasmiy veb-sayt / Official website: [YangiAlifbodaYoz.uz](https://yangialifbodayoz.uz)
+- GitHub repozitoriysi / This repository: [Output/YAY_Setup.exe](https://github.com/nodiranor/yangi_alifboda_yoz/raw/main/Output/YAY_Setup.exe)
+
+Faylni işga tuşirib, körsatmalarga amal qiling. Dasturni özingiz yiğişingiz şart emas. Örnatmasdan işlaydigan `YAY.exe` ni [Releases](https://github.com/nodiranor/yangi_alifboda_yoz/releases) sahifasidan yuklab oling. Windows 7 SP1 va undan yangisi, 32 yoki 64 bit. `YAY.exe /tray` oynasiz, faqat tizim pastidan işga tuşadi.
+
+Download the installer `YAY_Setup.exe` from either the official website or this repository, run it and follow the wizard. You do not need to build anything yourself. The portable `YAY.exe` (no installation needed) is on the [Releases](https://github.com/nodiranor/yangi_alifboda_yoz/releases) page. Windows 7 SP1 or newer, 32 or 64 bit. `YAY.exe /tray` starts in the tray without a window.
 
 Özbek (lotin) klaviaturasi Windows 8 va undan yangisida örnatuvçi yoki dastur oynasidagi tugma orqali qöşiladi. Windows 7 da tugma röyxatga yozuv qöşadi, undan keyin tizimdan çiqib qayta kiriş kerak.
 
@@ -59,9 +66,9 @@ On Windows 8 and later the Uzbek (Latin) layout is added by the installer or by 
 
 ## Yiğiş / Building
 
-Visual Studio 2022 ("Desktop development with C++") kerak. Örnatuvçi uçun Inno Setup 6 ham kerak.
+Bu bölim faqat dastur kodini özgartirmoqçi bölganlar uçun. Oddiy foydalanuvçilar yuqoridagi örnatuvçini yuklab olsa kifoya. Visual Studio 2022 ("Desktop development with C++") kerak. Örnatuvçi uçun Inno Setup 6 ham kerak.
 
-You need Visual Studio 2022 with the "Desktop development with C++" workload, and Inno Setup 6 for the installer.
+This section is only for people who want to change the code: to just use YAY, download the installer above. You need Visual Studio 2022 with the "Desktop development with C++" workload, and Inno Setup 6 for the installer.
 
 ```bat
 build.cmd
