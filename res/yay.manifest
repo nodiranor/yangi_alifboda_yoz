@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <!-- Embedded into YAY.exe by res/yay.rc. It tells Windows how to treat the program. -->
-  <assemblyIdentity type="win32" name="YAY.YangiAlifbodaYoz" version="2.0.0.0" processorArchitecture="*"/>
+  <assemblyIdentity type="win32" name="YAY.YangiAlifbodaYoz" version="1.0.0.0" processorArchitecture="*"/>
   <description>YAY - Yangi Alifboda Yoz</description>
   <!-- Use the modern (version 6) look for buttons, checkboxes and the sponsor link. Without
        this entry they are drawn in the old Windows 95 style. -->

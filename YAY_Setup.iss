@@ -1,5 +1,5 @@
 #define MyAppName "YAY - Yangi Alifboda Yoz"
-#define MyAppVersion "2.0.0"
+#define MyAppVersion "1.0.0"
 #define MyAppPublisher "YAY"
 #define MyAppExeName "YAY.exe"
 #define SponsorUrl "https://t.me/juraboshibot"

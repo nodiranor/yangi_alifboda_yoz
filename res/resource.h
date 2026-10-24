@@ -30,7 +30,6 @@
 #define IDC_RULE4              3018
 #define IDC_CHK_CYR_RU         3019
 #define IDC_BTN_HIDE           3004
-#define IDC_BTN_EXIT           3005
 
 // Commands from the tray menu (ID_TRAY_*). They arrive in the dashboard as WM_COMMAND. A second
 // launch of YAY sends ID_TRAY_OPEN_DASHBOARD the same way, to bring the first window forward.

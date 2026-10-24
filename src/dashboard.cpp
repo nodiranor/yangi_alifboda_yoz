@@ -155,7 +155,7 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     else KillTimer(hDlg, TIMER_DASH_REFRESH);
     return FALSE;
 
-  // Commands from three sources: this window's buttons and boxes (IDC_*), the Esc key
+  // Commands from three sources: this window's button and boxes (IDC_*), the Esc key
   // (IDCANCEL), and the tray menu (ID_TRAY_*). A second launch of YAY also sends
   // ID_TRAY_OPEN_DASHBOARD here (see main.cpp).
   case WM_COMMAND: {
@@ -169,7 +169,6 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     case IDC_CHK_STARTUP:   ToggleStartup(GetCheck(hDlg, id)); return TRUE;
     case IDC_BTN_HIDE:
     case IDCANCEL:          ShowWindow(hDlg, SW_HIDE); return TRUE;
-    case IDC_BTN_EXIT:
     case ID_TRAY_EXIT:      DestroyWindow(hDlg); return TRUE;
     case ID_TRAY_OPEN_DASHBOARD: ShowDashboard(); return TRUE;
     case ID_TRAY_ENABLE:    g_bEnabled = !g_bEnabled; UpdateTrayStatus(); return TRUE;
@@ -228,13 +227,12 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     }
     return TRUE;
 
-  // The X button only hides the window; YAY keeps running in the tray. Use the Exit button or
-  // the tray menu to quit.
+  // The X button only hides the window; YAY keeps running in the tray. Use the tray menu to quit.
   case WM_CLOSE:
     ShowWindow(hDlg, SW_HIDE);
     return TRUE;
 
-  // Reached from the Exit button or the tray menu. Clean up, then end the message loop in main.cpp.
+  // Reached from the tray menu. Clean up, then end the message loop in main.cpp.
   case WM_DESTROY:
     KillTimer(hDlg, TIMER_DASH_REFRESH);
     KillTimer(hDlg, TIMER_COACH);
