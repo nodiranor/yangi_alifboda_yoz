@@ -86,7 +86,7 @@ void UpdateDashboardUI() {
   SetTextIfChanged(g_hMainWnd, IDC_LANG_TEXT, buf);
 }
 
-// The "add layout" button. Windows 8 and later: start the PowerShell job in the background
+// The "add layout" button. Windows 8 and later: start the add-layout job in the background
 // (WM_LAYOUT_INSTALL_DONE comes back when it ends). Windows 7: write the registry and ask the
 // user to sign out and in.
 static void OnAddUzbekLayout(HWND hDlg) {
@@ -201,14 +201,14 @@ INT_PTR CALLBACK DashboardDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lPa
     return TRUE;
 #endif
 
-  // The PowerShell job finished: the layout list probably changed, so refresh.
+  // The add-layout job finished: the layout list probably changed, so refresh.
   case WM_LAYOUT_INSTALL_DONE:
     UpdateTrayStatus();
     return TRUE;
 
   // TIMER_COACH: time to hide the hint popup. TIMER_DASH_REFRESH: the once-a-second refresh while
   // the window is visible. It catches changes the shell notification does not, such as the Uzbek
-  // layout appearing a moment after PowerShell finishes.
+  // layout appearing a moment after the add-layout job finishes.
   case WM_TIMER:
     if (wParam == TIMER_COACH) HidePill();
     else if (wParam == TIMER_DASH_REFRESH) UpdateTrayStatus();

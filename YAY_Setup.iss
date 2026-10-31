@@ -39,8 +39,8 @@ Name: "uzbek"; MessagesFile: "compiler:Default.isl,Uzbek.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 ; Optional tasks, shown on the wizard page "additional tasks". All are ticked by default.
-; MinVersion 6.2 hides the layout task on Windows 7, where the PowerShell command does not exist
-; (the program offers its own Windows 7 path from its window).
+; MinVersion 6.2 hides the layout task on Windows 7, where the program adds the layout through the
+; registry from its window instead (it needs a sign-out).
 [Tasks]
 Name: "desktopicon"; Description: "Iş stolida yorliq yaratiş / Создать ярлык на рабочем столе"; GroupDescription: "Qöşimça amallar / Дополнительно:"
 Name: "startup"; Description: "Windows bilan birga avtomatik işga tuşiriş / Автозапуск вместе с Windows"; GroupDescription: "Qöşimça sozlamalar / Дополнительные параметры:"
@@ -48,7 +48,6 @@ Name: "addinputmethod"; Description: "Windows Til paneliga Özbek Lotin tilini q
 
 [Files]
 Source: "{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "install_uzbek_layout.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
@@ -60,17 +59,22 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDi
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "YAY_UzbekKeyboard"; ValueData: """{app}\{#MyAppExeName}"" /tray"; Flags: uninsdeletevalue; Tasks: startup
 
 [Run]
-; Windows 8+ only: the cmdlet does not exist on Windows 7. The app offers its own Windows 7 path.
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ""{app}\install_uzbek_layout.ps1"""; Flags: runhidden waituntilterminated; Tasks: addinputmethod; MinVersion: 6.2
+; Windows 8+ only; the app offers its own Windows 7 path. "/addlayout" adds only the Uzbek (Latin)
+; entry to the language list and exits. It does not rewrite the list, so the user's other input
+; methods (for example Chinese ones from Google or Sogou) stay as they are.
+Filename: "{app}\{#MyAppExeName}"; Parameters: "/addlayout"; Flags: runhidden waituntilterminated; Tasks: addinputmethod; MinVersion: 6.2
 Filename: "{app}\{#MyAppExeName}"; Description: "Dasturni hozir işga tuşiriş / Запустить программу сейчас"; Flags: nowait postinstall
 
 ; Stop YAY before its files are removed.
 [UninstallRun]
 Filename: "taskkill.exe"; Parameters: "/F /IM {#MyAppExeName}"; Flags: runhidden; RunOnceId: "StopYAY"
 
+; Earlier versions installed a PowerShell script here that rewrote the whole language list.
+[InstallDelete]
+Type: files; Name: "{app}\install_uzbek_layout.ps1"
+
 [UninstallDelete]
 Type: files; Name: "{app}\{#MyAppExeName}"
-Type: files; Name: "{app}\install_uzbek_layout.ps1"
 
 [Code]
 var

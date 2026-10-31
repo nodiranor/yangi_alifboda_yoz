@@ -52,6 +52,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
   const wchar_t *cmd = GetCommandLineW();
   const bool startInTray = cmd && (ContainsW(cmd, L"/tray") || ContainsW(cmd, L"/minimized"));
 
+  // "/addlayout" (run by the installer): add the Uzbek (Latin) layout and exit. No window, tray icon,
+  // keyboard hook or single-instance check, so it also works while another copy is running.
+  if (cmd && ContainsW(cmd, L"/addlayout"))
+    return AddUzbekLayout() ? 0 : 1;
+
   // A named mutex is how we notice another copy: creating it a second time sets
   // ERROR_ALREADY_EXISTS.
   // Single instance: a second launch brings the existing dashboard to the front and exits.

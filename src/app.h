@@ -56,7 +56,7 @@
 // Private window messages. The WM_USER range is reserved by the dialog manager (it uses
 // WM_USER+0 for DM_GETDEFID and friends), so a dialog must use WM_APP and above.
 #define WM_TRAYICON            (WM_APP + 1)  // sent by the tray icon; lParam is the mouse message
-#define WM_LAYOUT_INSTALL_DONE (WM_APP + 2)  // posted by the PowerShell worker thread when it ends
+#define WM_LAYOUT_INSTALL_DONE (WM_APP + 2)  // posted by the add-layout worker thread when it ends
 
 // Timer IDs. Both timers belong to the dashboard window, even while it is hidden.
 #define TIMER_COACH            2002  // hides the hint popup after DURATION_COACH_MS
@@ -125,7 +125,8 @@ enum ActiveProfile {
 ActiveProfile GetActiveProfile(HKL *outLayout);
 bool IsUzbekLayoutInstalled();     // is the Uzbek (Latin) layout in the user's layout list?
 bool IsWindows8OrGreaterReal();    // the true OS version; the Windows 7 and 8+ install paths differ
-void TriggerAddUzbekLayout();      // Windows 8 and later: add the layout in the background
+bool AddUzbekLayout();             // Windows 8 and later: add the layout now (only that entry), true on success
+void TriggerAddUzbekLayout();      // the same, in the background
 bool AddUzbekPreloadWin7();        // Windows 7: add it through the registry (needs a sign-out)
 
 // tray.cpp

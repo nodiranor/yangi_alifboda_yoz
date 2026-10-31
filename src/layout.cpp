@@ -54,8 +54,8 @@ bool IsUzbekLayoutInstalled() {
   return found;
 }
 
-// True on Windows 8 and later. The two install paths differ because Windows 7 has no
-// PowerShell command for changing the language list (see AddUzbekPreloadWin7).
+// True on Windows 8 and later. The two install paths differ: Windows 8 and later add the layout
+// with InstallLayoutOrTip (see AddUzbekLayout), Windows 7 through the registry (see AddUzbekPreloadWin7).
 // RtlGetVersion always reports the real version, even where a compatibility mode or a missing
 // manifest entry would make GetVersionEx report an older one. ntdll.dll exports it, but the
 // normal Windows headers do not declare it, so it is looked up at run time.
@@ -70,35 +70,63 @@ bool IsWindows8OrGreaterReal() {
   return true;
 }
 
-// Windows 8 and later: adds uz-Latn-UZ to the user's language list by running PowerShell.
+// Windows 8 and later: adds the Uzbek (Latin) layout to the user's language list, and nothing else.
 //
-// It runs on a worker thread because PowerShell takes a few seconds to start and the window must
-// not freeze meanwhile. When PowerShell ends (or after 15 s) the thread posts
-// WM_LAYOUT_INSTALL_DONE so the window can refresh itself.
+// The list belongs to the user and may hold input methods YAY knows nothing about, such as the
+// Chinese ones from Google or Sogou. So exactly one entry is added, with InstallLayoutOrTip, which
+// enables only the entries it is given. Do not read the whole list and write it back (for example
+// with PowerShell's Get-/Set-WinUserLanguageList): Windows then rewrites every entry from the copy
+// that was read, and an input method missing from that copy is lost.
 //
-// The command line uses -EncodedCommand, which takes the script as base64 of its UTF-16 text.
-// That avoids every quoting problem. The script is:
-//   $langs = Get-WinUserLanguageList; if (-not ($langs | Where-Object { $_.LanguageTag -like 'uz*' }))
-//   { $uz = New-WinUserLanguageList 'uz-Latn-UZ'; $langs.Add($uz[0]); Set-WinUserLanguageList $langs -Force }
-// To change the script, edit the text above and encode it again, for example in PowerShell:
-//   [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($scriptText))
-// The installer runs the same logic from install_uzbek_layout.ps1.
-static DWORD WINAPI InstallUzbekThreadProc(LPVOID) {
-  const wchar_t *params =
-      L"-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -EncodedCommand "
-      L"JABsAGEAbgBnAHMAIAA9ACAARwBlAHQALQBXAGkAbgBVAHMAZQByAEwAYQBuAGcAdQBhAGcAZQBMAGkAcwB0ADsAIABpAGYAIAAoAC0AbgBvAHQAIAAoACQAbABhAG4AZwBzACAAfAAgAFcAaABlAHIAZQAtAE8AYgBqAGUAYwB0ACAAewAgACQAXwAuAEwAYQBuAGcAdQBhAGcAZQBUAGEAZwAgAC0AbABpAGsAZQAgACcAdQB6ACoAJwAgAH0AKQApACAAewAgACQAdQB6ACAAPQAgAE4AZQB3AC0AVwBpAG4AVQBzAGUAcgBMAGEAbgBnAHUAYQBnAGUATABpAHMAdAAgACcAdQB6AC0ATABhAHQAbgAtAFUAWgAnADsAIAAkAGwAYQBuAGcAcwAuAEEAZABkACgAJAB1AHoAWwAwAF0AKQA7ACAAUwBlAHQALQBXAGkAbgBVAHMAZQByAEwAYQBuAGcAdQBhAGcAZQBMAGkAcwB0ACAAJABsAGEAbgBnAHMAIAAtAEYAbwByAGMAZQAgAH0A";
+// The entry "0443:00000409" is the Uzbek (Latin) language with the US keyboard, the same entry the
+// Settings app adds. input.dll has no import library, so it is loaded at run time, by its full
+// system path so that no other DLL of that name can be picked up. Returns true on success.
+//
+// Windows can record the entry in the language list and still not load it into the running
+// session. Then the layout is missing from the tray until the next sign-in. This happens when an
+// older install left some of its entries behind (HKCU\Keyboard Layout\Preload and Substitutes).
+// Adding the entry a second time does not help, but removing this one entry and adding it again does,
+// so that is done when the layout has not appeared. Other entries are never touched.
+static const wchar_t UZBEK_LATIN_ENTRY[] = L"0x0443:0x00000409";
+#define ILOT_UNINSTALL 0x00000001  // InstallLayoutOrTip flag; it is not in any header
 
-  SHELLEXECUTEINFOW sei = {0};
-  sei.cbSize = sizeof(sei);
-  sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-  sei.lpVerb = L"open";
-  sei.lpFile = L"powershell.exe";
-  sei.lpParameters = params;
-  sei.nShow = SW_HIDE;
-  if (ShellExecuteExW(&sei) && sei.hProcess) {
-    WaitForSingleObject(sei.hProcess, 15000);
-    CloseHandle(sei.hProcess);
+// Waits up to `ms` milliseconds for the Uzbek (Latin) layout to show up in this session.
+static bool WaitForUzbekLayout(int ms) {
+  for (int waited = 0;; waited += 100) {
+    if (IsUzbekLayoutInstalled()) return true;
+    if (waited >= ms) return false;
+    Sleep(100);
   }
+}
+
+bool AddUzbekLayout() {
+  if (IsUzbekLayoutInstalled()) return true;  // already usable: leave the user's list alone
+  wchar_t path[MAX_PATH];
+  UINT n = GetSystemDirectoryW(path, MAX_PATH);
+  if (n == 0 || n + 11 > MAX_PATH) return false;  // 11 = "\input.dll" (10) and the end mark
+  lstrcatW(path, L"\\input.dll");
+  HMODULE hInput = LoadLibraryW(path);
+  if (!hInput) return false;
+  typedef BOOL(WINAPI * InstallLayoutOrTipFn)(LPCWSTR, DWORD);
+  InstallLayoutOrTipFn fn = (InstallLayoutOrTipFn)GetProcAddress(hInput, "InstallLayoutOrTip");
+  BOOL ok = FALSE;
+  if (fn) {
+    // Flags 0: enable the entry now. Never pass ILOT_CLEANINSTALL (0x40): it disables all the other layouts.
+    ok = fn(UZBEK_LATIN_ENTRY, 0);
+    if (ok && !WaitForUzbekLayout(1500)) {
+      fn(UZBEK_LATIN_ENTRY, ILOT_UNINSTALL);
+      ok = fn(UZBEK_LATIN_ENTRY, 0);
+    }
+  }
+  FreeLibrary(hInput);
+  return ok != FALSE;
+}
+
+// The worker thread for TriggerAddUzbekLayout. It is a thread so that the window does not freeze
+// while Windows registers the layout. When it ends it posts WM_LAYOUT_INSTALL_DONE, so the window
+// can refresh itself.
+static DWORD WINAPI InstallUzbekThreadProc(LPVOID) {
+  AddUzbekLayout();
   if (g_hMainWnd) PostMessageW(g_hMainWnd, WM_LAYOUT_INSTALL_DONE, 0, 0);
   return 0;
 }
