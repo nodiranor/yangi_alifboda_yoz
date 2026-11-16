@@ -118,6 +118,15 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
   }
 
   // --- Latin layout: the double-tap engine --------------------------------------------------
+  // Where the mouse pointer is now, and whether it has moved since the previous key. If it has,
+  // the user may have clicked somewhere else, and the caret is no longer next to the letter we
+  // converted: a Backspace there must not undo that conversion (see EK_BACKSPACE below).
+  static POINT lastPointer = {0, 0};
+  POINT pointer = {0, 0};
+  GetCursorPos(&pointer);
+  const bool pointerMoved = pointer.x != lastPointer.x || pointer.y != lastPointer.y;
+  lastPointer = pointer;
+
   // Describe the key to the engine (engine.h explains the kinds).
   EngineKeyKind kind;
   wchar_t ch = 0;
@@ -129,8 +138,13 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     ch = IsCapsActive() ? (wchar_t)vk : (wchar_t)(vk + 32);
   } else if ((vk == VK_OEM_7 || vk == VK_OEM_3) && !KeyHeld(VK_SHIFT)) {
     // The ' key (VK_OEM_7) and the ` key (VK_OEM_3) on a US keyboard, without Shift. Both are
-    // accepted as the apostrophe in o' and g'.
+    // accepted as the apostrophe in o' and g'. `ch` says which, so an undo types back the same one.
     kind = EK_APOSTROPHE;
+    ch = (vk == VK_OEM_7) ? L'\'' : L'`';
+  } else if (vk == VK_BACK) {
+    // Backspace right after a conversion undoes it (sh -> ş -> sh). After a pointer move it is
+    // always an ordinary Backspace, because the caret may be somewhere else now.
+    kind = pointerMoved ? EK_OTHER : EK_BACKSPACE;
   } else {
     kind = EK_OTHER;
   }
@@ -138,9 +152,11 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
   // Any new key press dismisses the hint popup right away, so it never covers what is being typed.
   HidePill();
 
-  // Optional setting: a lone c always types ç, with no double tap needed.
+  // Optional setting: a lone c always types ç, with no double tap needed. A Backspace right
+  // after it gives back the plain c, the only way to type one while the setting is on.
   if (g_bInstantSingleC && kind == EK_LETTER && (ch == L'c' || ch == L'C')) {
     EngineReset(&g_engine);
+    EngineSetUndo(&g_engine, ch == L'C' ? L"C" : L"c", GetTickCount());
     SendBackspaceAndChars(0, ch == L'C' ? L"Ç" : L"ç");
     return 1;
   }
@@ -148,7 +164,8 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
   EngineDecision d = EngineProcess(&g_engine, kind, ch, GetTickCount());
   if (d.action == EA_REPLACE) {
     // Delete the first letter of the pair (already in the application), type the new one, and
-    // swallow the key that triggered all this.
+    // swallow the key that triggered all this. For an undo: delete the new letter, type back
+    // the keys it replaced, and swallow the Backspace.
     SendBackspaceAndChars(d.backspaces, d.text);
     if (d.tip && g_bShowTips) ShowCoachingTip(d.tip);
     return 1;

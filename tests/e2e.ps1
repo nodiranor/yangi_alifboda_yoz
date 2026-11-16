@@ -112,7 +112,10 @@ $cases = @(
   @('shahar', "${S}ahar"), @('ssahar', "${S}ahar"), @('Shahar', "${SU}ahar"),
   @('choy', "${C}oy"), @('ccoy', "${C}oy"),
   @("o'rdak", "${O}rdak"), @('oordak', "${O}rdak"), @("g'alaba", "${G}alaba"), @('ggalaba', "${G}alaba"),
-  @('Toshkent', "To${S}kent"), @('s|s', 'ss'), @("ma'no", "ma'no"), @('ss<s', 's'), @('s s', 's s')
+  @('Toshkent', "To${S}kent"), @('s|s', 'ss'), @("ma'no", "ma'no"), @('ss<s', 'sss'), @('s s', 's s'),
+  # Backspace right after a conversion gives back the keys as typed
+  @('sh<', 'sh'), @('Sh<', 'Sh'), @('ch<', 'ch'), @("o'<", "o'"), @("g'<", "g'"), @('ss<', 'ss'), @('oo<', 'oo'),
+  @('Ish<oq', 'Ishoq'), @("mo'<jiza", "mo'jiza"), @('kass<a', 'kassa'), @('sh<<', 's'), @('sha<', "${S}"), @('as<s', 'as')
 )
 
 $fail = 0

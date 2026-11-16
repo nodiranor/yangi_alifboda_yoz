@@ -26,7 +26,7 @@ bool        g_bShowTips         = true;
 bool        g_bCyrillicOnRussian = false;
 bool        g_bSendingInput     = false;
 bool        g_bWin7PreloadWritten = false;
-EngineState g_engine            = {ER_NONE, 0, {0, 0}, 0, DOUBLE_TAP_MS};
+EngineState g_engine            = {ER_NONE, 0, {0, 0}, 0, DOUBLE_TAP_MS, {0, 0, 0}, 0, UNDO_MS};
 TranslitState g_translit        = {{0}, 0};
 
 // Is `needle` somewhere inside `hay`? A minimal wcsstr: the C library is not linked (nocrt.cpp).
@@ -135,7 +135,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
 
   // Install the hook last, when everything it uses exists. It stays until the program exits.
   // A low-level hook is global (thread id 0) and its code lives in this exe, hence hInstance.
-  EngineInit(&g_engine, DOUBLE_TAP_MS);
+  EngineInit(&g_engine, DOUBLE_TAP_MS, UNDO_MS);
   g_hHook = SetWindowsHookExW(WH_KEYBOARD_LL, LowLevelKeyboardProc, hInstance, 0);
 
   // Show the right icon for the current layout, and the window unless we started with /tray.

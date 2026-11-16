@@ -43,10 +43,28 @@ static EngineDecision Replace1(wchar_t c, const wchar_t *tip) {
   return d;
 }
 
-void EngineInit(EngineState *st, EngineTick windowMs) { EngineReset(st); st->window = windowMs; }
+void EngineInit(EngineState *st, EngineTick windowMs, EngineTick undoMs) {
+  EngineReset(st);
+  st->window = windowMs;
+  st->undoWindow = undoMs;
+}
 
 void EngineReset(EngineState *st) {
   st->run = ER_NONE; st->letter = 0; st->typed[0] = 0; st->typed[1] = 0; st->lastTime = 0;
+  st->undo[0] = 0; st->undoTime = 0;
+}
+
+void EngineSetUndo(EngineState *st, const wchar_t *typed, EngineTick now) {
+  int n = 0;
+  while (typed[n] && n < 2) { st->undo[n] = typed[n]; n++; }
+  st->undo[n] = 0;
+  st->undoTime = now;
+}
+
+// The same, for the two keys of a pair: "s" + "h", "o" + "'", "s" + "s".
+static void SetUndo2(EngineState *st, wchar_t first, wchar_t second, EngineTick now) {
+  const wchar_t typed[3] = { first, second, 0 };
+  EngineSetUndo(st, typed, now);
 }
 
 // A note on timing: the first letter of every pair has already reached the application by the
@@ -58,7 +76,25 @@ EngineDecision EngineProcess(EngineState *st, EngineKeyKind kind, wchar_t ch, En
   // new key. They must not end a run: typing "sS" presses Shift between the two taps.
   if (kind == EK_MODIFIER) return Pass();
 
-  // Spaces, digits, arrows, Backspace, shortcuts and so on end the run.
+  // Backspace right after a conversion undoes it: delete the new letter and type back the keys
+  // it replaced, so sh -> ş -> sh and ss -> ş -> ss. The Backspace itself is swallowed. Later,
+  // or with nothing to undo, it is an ordinary Backspace. Either way the run is over.
+  if (kind == EK_BACKSPACE) {
+    const bool canUndo = st->undo[0] && (now - st->undoTime) <= st->undoWindow;
+    EngineDecision d = Pass();
+    if (canUndo) {
+      d.action = EA_REPLACE;
+      d.backspaces = 1;
+      d.text[0] = st->undo[0]; d.text[1] = st->undo[1]; d.text[2] = 0;
+    }
+    EngineReset(st);
+    return d;
+  }
+
+  // Any other key means the user has accepted the last conversion: it can no longer be undone.
+  st->undo[0] = 0;
+
+  // Spaces, digits, arrows, shortcuts and so on end the run.
   if (kind == EK_OTHER || kind == EK_COMBO) { EngineReset(st); return Pass(); }
 
   // Unsigned subtraction: still right if the tick counter wrapped in between.
@@ -70,7 +106,9 @@ EngineDecision EngineProcess(EngineState *st, EngineKeyKind kind, wchar_t ch, En
     if (st->run == ER_ONE && (st->letter == L'o' || st->letter == L'g')) {
       const bool up = UpperAscii(st->typed[0]);
       const wchar_t l = st->letter;
+      const wchar_t first = st->typed[0];
       EngineReset(st);
+      SetUndo2(st, first, ch ? ch : L'\'', now);
       return Replace1(TargetFor(l, up), TipFor(l, up));
     }
     EngineReset(st);
@@ -86,7 +124,9 @@ EngineDecision EngineProcess(EngineState *st, EngineKeyKind kind, wchar_t ch, En
     if (st->run == ER_ONE && (st->letter == L's' || st->letter == L'c')) {
       const bool up = UpperAscii(st->typed[0]);
       const wchar_t l = st->letter;
+      const wchar_t first = st->typed[0];
       EngineReset(st);
+      SetUndo2(st, first, ch, now);
       return Replace1(TargetFor(l, up), TipFor(l, up));
     }
     EngineReset(st);
@@ -104,6 +144,7 @@ EngineDecision EngineProcess(EngineState *st, EngineKeyKind kind, wchar_t ch, En
       st->typed[1] = ch;
       st->run = ER_CONVERTED;
       st->lastTime = now;
+      SetUndo2(st, st->typed[0], ch, now);
       return Replace1(TargetFor(lower, up), 0);
     }
     if (st->run == ER_CONVERTED) {

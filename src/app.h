@@ -64,6 +64,7 @@
 
 #define DURATION_COACH_MS      4000  // how long the hint popup stays on screen
 #define DOUBLE_TAP_MS          350   // longest gap between two taps that still counts as a double tap
+#define UNDO_MS                2000  // longest gap between a conversion and a Backspace that undoes it
 
 // Stamped into dwExtraInfo of every key YAY injects. The hook uses it to recognise its own output
 // (see hook.cpp and inject.cpp). The value is the ASCII for "YAY!".

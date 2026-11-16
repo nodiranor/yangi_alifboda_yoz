@@ -13,8 +13,8 @@ IDI_PAUSEDICON ICON "app_paused.ico"
 // Version information shown in the file's Properties window. Keep the version in step with
 // MyAppVersion in YAY_Setup.iss and the version in yay.manifest.
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION     1,0,0,0
-PRODUCTVERSION  1,0,0,0
+FILEVERSION     1,1,0,0
+PRODUCTVERSION  1,1,0,0
 FILEFLAGSMASK   0x3fL
 FILEFLAGS       0x0L
 FILEOS          0x40004L
@@ -28,12 +28,12 @@ BEGIN
             VALUE "Comments",         "YAY - Yangi Alifboda Yoz\0"
             VALUE "CompanyName",      "YAY Project\0"
             VALUE "FileDescription",  "YAY - Yangi Alifboda Yoz\0"
-            VALUE "FileVersion",      "1.0.0.0\0"
+            VALUE "FileVersion",      "1.1.0.0\0"
             VALUE "InternalName",     "YAY\0"
             VALUE "LegalCopyright",   "MIT License\0"
             VALUE "OriginalFilename", "YAY.exe\0"
             VALUE "ProductName",      "YAY - Yangi Alifboda Yoz\0"
-            VALUE "ProductVersion",   "1.0.0.0\0"
+            VALUE "ProductVersion",   "1.1.0.0\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -52,7 +52,7 @@ END
 // are shown on purpose, because they are what people type.
 //
 // Group boxes only draw a frame; the controls inside are placed over them, not owned by them.
-IDD_MAIN DIALOGEX 0, 0, 320, 268
+IDD_MAIN DIALOGEX 0, 0, 320, 280
 STYLE DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
 EXSTYLE WS_EX_APPWINDOW
 // The window class, registered in main.cpp. A second launch of YAY finds the first through it.
@@ -64,28 +64,29 @@ BEGIN
     LTEXT           "Tilni almaştiriş: Win + Space", IDC_LANG_TEXT, 7, 19, 306, 10
     PUSHBUTTON      "Özbek (lotin) tilini til paneliga qöşiş", IDC_BTN_ADD_UZBEK, 7, 33, 220, 14
 
-    GROUPBOX        "Qoidalar", IDC_GRP_RULES, 7, 54, 306, 92
+    GROUPBOX        "Qoidalar", IDC_GRP_RULES, 7, 54, 306, 104
     LTEXT           "ss → ş          oo → ö          gg → ğ          cc → ç", IDC_RULE1, 15, 67, 290, 10
     LTEXT           "Uç marta bossangiz asl harflar qoladi: sss → ss, ooo → oo", IDC_RULE2, 15, 79, 290, 10
     LTEXT           "Eski usul ham işlaydi: sh → ş, ch → ç, o' → ö, g' → ğ", IDC_RULE3, 15, 91, 290, 10
-    LTEXT           "Kirill klaviaturada yozsangiz lotin çiqadi: ш → ş, ч → ç, ў → ö, ғ → ğ, қ → q, ҳ → h, ё → yo, ю → yu, я → ya.", IDC_RULE4, 15, 103, 290, 20
-    LTEXT           "Sinab köring:", IDC_TEST_LABEL, 15, 129, 48, 10
+    LTEXT           "Darhol Backspace bossangiz yozganingiz qaytadi: sh → ş → sh", IDC_RULE5, 15, 103, 290, 10
+    LTEXT           "Kirill klaviaturada yozsangiz lotin çiqadi: ш → ş, ч → ç, ў → ö, ғ → ğ, қ → q, ҳ → h, ё → yo, ю → yu, я → ya.", IDC_RULE4, 15, 115, 290, 20
+    LTEXT           "Sinab köring:", IDC_TEST_LABEL, 15, 141, 48, 10
     // The test box: type here to try the rules without opening another program.
-    EDITTEXT        IDC_EDIT_TEST, 66, 126, 239, 14, ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TEST, 66, 138, 239, 14, ES_AUTOHSCROLL
 
-    GROUPBOX        "Sozlamalar", IDC_GRP_SETTINGS, 7, 153, 306, 86
-    AUTOCHECKBOX    "Faqat Özbek (UZB) tili tanlanganda işlaş", IDC_CHK_ONLY_UZ, 15, 166, 290, 10
-    AUTOCHECKBOX    "Bitta 'c' harfini darhol 'ç' qilib yoziş", IDC_CHK_SINGLE_C, 15, 180, 290, 10
-    AUTOCHECKBOX    "Eski usulda yozganda maslahat körsatiş", IDC_CHK_TIPS, 15, 194, 290, 10
-    AUTOCHECKBOX    "Rus (RU) klaviaturasida ham ögiriş (rus matni ham lotin böladi)", IDC_CHK_CYR_RU, 15, 208, 290, 10
-    AUTOCHECKBOX    "Windows bilan birga işga tuşiriş", IDC_CHK_STARTUP, 15, 222, 290, 10
+    GROUPBOX        "Sozlamalar", IDC_GRP_SETTINGS, 7, 165, 306, 86
+    AUTOCHECKBOX    "Faqat Özbek (UZB) tili tanlanganda işlaş", IDC_CHK_ONLY_UZ, 15, 178, 290, 10
+    AUTOCHECKBOX    "Bitta 'c' harfini darhol 'ç' qilib yoziş", IDC_CHK_SINGLE_C, 15, 192, 290, 10
+    AUTOCHECKBOX    "Eski usulda yozganda maslahat körsatiş", IDC_CHK_TIPS, 15, 206, 290, 10
+    AUTOCHECKBOX    "Rus (RU) klaviaturasida ham ögiriş (rus matni ham lotin böladi)", IDC_CHK_CYR_RU, 15, 220, 290, 10
+    AUTOCHECKBOX    "Windows bilan birga işga tuşiriş", IDC_CHK_STARTUP, 15, 234, 290, 10
 
     // SysLink: a label with a clickable link, handled in DashboardDlgProc (WM_NOTIFY).
     // Inside an RC string a quote is written as two quotes.
-    CONTROL         "Homiy: <a href=""https://t.me/juraboshibot"">t.me/juraboshibot</a>", IDC_SPONSOR, "SysLink", WS_TABSTOP, 7, 250, 160, 10
+    CONTROL         "Homiy: <a href=""https://t.me/juraboshibot"">t.me/juraboshibot</a>", IDC_SPONSOR, "SysLink", WS_TABSTOP, 7, 262, 160, 10
     // There is deliberately no default button: pressing Enter in the test box must not hide the
     // window. "&" marks the Alt+letter shortcut. The letter is plain ASCII (B) because
     // Alt+ç or Alt+ö cannot be typed on most keyboards. There is no Exit button: the window's
     // X and this button both hide YAY to the tray, and the tray menu is where it is quit.
-    PUSHBUTTON      "&Boşlaş", IDC_BTN_HIDE, 241, 247, 72, 14
+    PUSHBUTTON      "&Boşlaş", IDC_BTN_HIDE, 241, 259, 72, 14
 END

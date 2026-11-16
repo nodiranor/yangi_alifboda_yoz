@@ -19,9 +19,10 @@ Homiy: [t.me/juraboshibot](https://t.me/juraboshibot)
 
 - Bir xil harfni ikki marta tez bossangiz, ular bitta yangi harfga almaşadi: `ss` → ş. Oddiy ikki harf kerak bölsa (*Rossiya*, *issiq*), uçinçi marta bosing: `sss` → `ss`. Keyingi bosişlar oddiy harf bölib qoladi: `ssss` → `sss`.
 - "Tez" taxminan 0,35 soniya. Eski usullar (`sh`, `ch`, `o'`, `g'`) tezlikka boğliq emas.
+- Yangi harf paydo bölgandan keyin darhol Backspace bossangiz, ögiriş bekor böladi va bosgan tugmalaringiz qaytadi: `sh` → ş → `sh`, `ss` → ş → `ss`, `o'` → ö → `o'`. Bu *Ishoq*, *kassa*, *moʼjiza* kabi sözlar uçun qulay. Backspace 2 soniya içida va siçqonça qimirlamagan bölsa işlaydi, aks holda harfni odatdagidek öçiradi.
 - Enter, Tab va Escape tugmalariga heç qaçon tegilmaydi.
 - ş dan keyin s keladigan sözlarda (*işsiz*, *tuşsa*) `sh` + `s` yozing yoki ikkinçi `s` dan keyin biroz töxtang.
-- Dastur oynasida "Bitta 'c' harfini darhol 'ç' qilib yoziş" sozlamasi bor.
+- Dastur oynasida "Bitta 'c' harfini darhol 'ç' qilib yoziş" sozlamasi bor. Unda oddiy c kerak bölsa, ç dan keyin darhol Backspace bosing.
 
 ### Kirilldan lotinga
 

@@ -9,6 +9,8 @@
 //   double tap   ss -> ş   cc -> ç   oo -> ö   gg -> ğ   (second tap within the time window)
 //   triple tap   sss -> ss, ccc -> cc, ...               (third tap gives the plain letters back)
 //   legacy       sh -> ş   ch -> ç   o' -> ö   g' -> ğ   (any speed)
+//   undo         Backspace right after any of these gives back the keys as typed:
+//                sh -> ş -> sh, ss -> ş -> ss, o' -> ö -> o'   (within the undo window)
 //
 // One "run" is a series of taps of the same letter. It moves through these states:
 //
@@ -20,6 +22,10 @@
 //
 // Any other key, a Ctrl/Alt/Win combination, or a pause longer than the window ends the run.
 // Capital letters follow the same rules: SS and Ss both give Ş.
+//
+// The undo works only when the Backspace is the very next key after the conversion (Shift alone
+// does not count) and comes within the undo window. Any other key, or a slower Backspace, and the
+// Backspace is an ordinary one that deletes the new letter. After an undo the run starts afresh.
 #pragma once
 
 // A millisecond tick count (GetTickCount). Unsigned, so "now - then" stays correct when the
@@ -29,10 +35,11 @@ typedef unsigned long EngineTick;
 // What kind of key was pressed. hook.cpp works this out from the raw key event.
 enum EngineKeyKind {
   EK_LETTER,      // an A-Z key; `ch` holds the letter with Shift and Caps Lock already applied
-  EK_APOSTROPHE,  // ' or ` without Shift (the key next to Enter, or the one under Esc)
+  EK_APOSTROPHE,  // ' or ` without Shift (the key next to Enter, or the one under Esc); `ch` holds which
+  EK_BACKSPACE,   // Backspace without Ctrl, Alt or Win: undoes a conversion it follows, else ends the run
   EK_MODIFIER,    // Shift, Ctrl, Alt, Caps Lock or Win pressed on their own: ignored
   EK_COMBO,       // any key pressed together with Ctrl, Alt or Win (a shortcut): ends the run
-  EK_OTHER        // everything else (space, digits, Backspace, Enter, arrows...): ends the run
+  EK_OTHER        // everything else (space, digits, Enter, arrows...): ends the run
 };
 
 // Where the current run of one letter stands, see the diagram at the top of this file.
@@ -45,6 +52,10 @@ struct EngineState {
   wchar_t    typed[2];   // the two characters exactly as typed, so a third tap can restore them
   EngineTick lastTime;   // tick of the last tap in the run
   EngineTick window;     // longest gap between taps of one run, in milliseconds
+  wchar_t    undo[3];    // the keys the last conversion replaced, as typed ("sh", "Ss", "o'");
+                         // empty when there is nothing to undo. NUL-terminated.
+  EngineTick undoTime;   // tick of that conversion
+  EngineTick undoWindow; // longest gap between a conversion and a Backspace that undoes it, in ms
 };
 
 // What the hook should do with the key it just asked about.
@@ -60,11 +71,17 @@ struct EngineDecision {
   const wchar_t *tip;         // set after a legacy form: the faster double tap to suggest ("ss"), else 0
 };
 
-// Prepares `st` for use. `windowMs` is the double-tap window (DOUBLE_TAP_MS).
-void           EngineInit(EngineState *st, EngineTick windowMs);
+// Prepares `st` for use. `windowMs` is the double-tap window (DOUBLE_TAP_MS), `undoMs` the
+// undo window (UNDO_MS).
+void           EngineInit(EngineState *st, EngineTick windowMs, EngineTick undoMs);
 
-// Forgets the current run. Call it when the user switches layout or window.
+// Forgets the current run and any pending undo. Call it when the user switches layout or window.
 void           EngineReset(EngineState *st);
+
+// Records that a key was just replaced outside EngineProcess (hook.cpp does this for the
+// "lone c types ç" setting), so that a Backspace right after it gives back `typed`
+// (at most 2 characters).
+void           EngineSetUndo(EngineState *st, const wchar_t *typed, EngineTick now);
 
 // Feeds one key press to the engine and returns what to do with it.
 //   kind  what sort of key it was

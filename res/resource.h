@@ -29,6 +29,7 @@
 #define IDC_SPONSOR            3017
 #define IDC_RULE4              3018
 #define IDC_CHK_CYR_RU         3019
+#define IDC_RULE5              3020
 #define IDC_BTN_HIDE           3004
 
 // Commands from the tray menu (ID_TRAY_*). They arrive in the dashboard as WM_COMMAND. A second
